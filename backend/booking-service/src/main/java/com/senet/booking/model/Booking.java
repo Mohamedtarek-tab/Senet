@@ -1,40 +1,47 @@
 package com.senet.booking.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
 @Entity
 @Table(name = "bookings")
 public class Booking {
 
     @Id
-    private String id; // Format: BK-001, etc.
+    @NotBlank(message = "Booking ID is required")
+    @Pattern(regexp = "^BK-[A-Z0-9]+$", message = "Booking ID must match format BK-XXXXXX")
+    private String id;
 
+    @NotBlank(message = "Car name is required")
     private String car;
-    private Long carId;
-    private String client;
-    private String userId; // Link to user
-    private String pickup;
-    private String ret; // Return date
-    private String amount; // EGP 7,200
-    private String status; // pending, confirmed, completed, cancelled
 
-    // Getters and Setters
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
-    public String getCar() { return car; }
-    public void setCar(String car) { this.car = car; }
-    public Long getCarId() { return carId; }
-    public void setCarId(Long carId) { this.carId = carId; }
-    public String getClient() { return client; }
-    public void setClient(String client) { this.client = client; }
-    public String getUserId() { return userId; }
-    public void setUserId(String userId) { this.userId = userId; }
-    public String getPickup() { return pickup; }
-    public void setPickup(String pickup) { this.pickup = pickup; }
-    public String getRet() { return ret; }
-    public void setRet(String ret) { this.ret = ret; }
-    public String getAmount() { return amount; }
-    public void setAmount(String amount) { this.amount = amount; }
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    @NotNull(message = "Car ID is required")
+    @Positive(message = "Car ID must be a positive number")
+    private Long carId;
+
+    @NotBlank(message = "Client name is required")
+    @Size(max = 100, message = "Client name must not exceed 100 characters")
+    private String client;
+
+    @NotBlank(message = "User ID is required")
+    private String userId;
+
+    @NotBlank(message = "Pickup date is required")
+    private String pickup;
+
+    @NotBlank(message = "Return date is required")
+    private String ret;
+
+    @NotBlank(message = "Amount is required")
+    private String amount;
+
+    @Pattern(
+        regexp = "^(pending|confirmed|completed|cancelled)$",
+        message = "Status must be one of: pending, confirmed, completed, cancelled"
+    )
+    private String status;
 }

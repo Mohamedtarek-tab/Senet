@@ -18,7 +18,12 @@ public class PaymentController {
     }
 
     @PostMapping
-    public ResponseEntity<Payment> createPayment(@RequestBody Payment payment) {
+    public ResponseEntity<?> createPayment(
+            @RequestHeader(value = "X-User-Id", required = false) String userId,
+            @RequestBody Payment payment) {
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
         return ResponseEntity.ok(paymentService.processPayment(payment));
     }
 
@@ -30,12 +35,20 @@ public class PaymentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Payment>> getAllPayments() {
+    public ResponseEntity<?> getAllPayments(
+            @RequestHeader(value = "X-User-Role", required = false) String role) {
+        if (!"ADMIN".equals(role)) {
+            return ResponseEntity.status(403).body("Admin access required");
+        }
         return ResponseEntity.ok(paymentService.getAllPayments());
     }
 
     @GetMapping("/my")
-    public ResponseEntity<List<Payment>> getMyPayments(@RequestHeader("X-User-Id") String userId) {
+    public ResponseEntity<?> getMyPayments(
+            @RequestHeader(value = "X-User-Id", required = false) String userId) {
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
         return ResponseEntity.ok(paymentService.getMyPayments(userId));
     }
 }

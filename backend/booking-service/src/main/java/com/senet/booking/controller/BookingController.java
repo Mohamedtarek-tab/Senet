@@ -52,6 +52,30 @@ public class BookingController {
         catch (Exception e) { return ResponseEntity.notFound().build(); }
     }
 
+    @PatchMapping("/{id}/cancel")
+    public ResponseEntity<?> cancelBooking(
+            @RequestHeader(value = "X-User-Id", required = false) String userId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @PathVariable String id) {
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        try {
+            Booking booking = bookingService.getBookingById(id)
+                    .orElseThrow(() -> new RuntimeException("Booking not found"));
+            // Allow if the caller owns the booking, or is an admin
+            if (!"ADMIN".equals(role) && !userId.equals(booking.getUserId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You can only cancel your own bookings");
+            }
+            if ("completed".equals(booking.getStatus())) {
+                return ResponseEntity.badRequest().body("Cannot cancel a completed booking");
+            }
+            return ResponseEntity.ok(bookingService.updateBookingStatus(id, "cancelled"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @PatchMapping("/{id}/status")
     public ResponseEntity<?> updateBookingStatus(@RequestHeader(value = "X-User-Role", required = false) String role,
                                                  @PathVariable String id,

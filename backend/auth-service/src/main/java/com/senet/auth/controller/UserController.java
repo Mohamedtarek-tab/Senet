@@ -5,6 +5,7 @@ import com.senet.auth.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.LinkedHashMap;
@@ -19,9 +20,11 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping("/me")
@@ -87,12 +90,12 @@ public class UserController {
 
         if (currentPassword == null || newPassword == null)
             return ResponseEntity.badRequest().body("currentPassword and newPassword are required");
-        if (!user.getPassword().equals(currentPassword))
+        if (!passwordEncoder.matches(currentPassword, user.getPassword()))
             return ResponseEntity.badRequest().body("Current password is incorrect");
         if (newPassword.length() < 6)
             return ResponseEntity.badRequest().body("Password must be at least 6 characters");
 
-        user.setPassword(newPassword);
+        user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
         return ResponseEntity.ok().build();
     }

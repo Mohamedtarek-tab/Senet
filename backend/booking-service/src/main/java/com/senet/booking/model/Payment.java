@@ -1,7 +1,12 @@
 package com.senet.booking.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
 @Entity
 @Table(name = "payments")
 public class Payment {
@@ -10,23 +15,19 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Booking ID is required")
     private String bookingId;
-    private String cardNumber; // obfuscated or last 4
-    private String expiry;
-    private Double amount;
-    private String status; // success, failed
 
-    // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public String getBookingId() { return bookingId; }
-    public void setBookingId(String bookingId) { this.bookingId = bookingId; }
-    public String getCardNumber() { return cardNumber; }
-    public void setCardNumber(String cardNumber) { this.cardNumber = cardNumber; }
-    public String getExpiry() { return expiry; }
-    public void setExpiry(String expiry) { this.expiry = expiry; }
-    public Double getAmount() { return amount; }
-    public void setAmount(Double amount) { this.amount = amount; }
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    private String cardNumber;
+    private String expiry;
+
+    @NotNull(message = "Amount is required")
+    @DecimalMin(value = "0.01", message = "Amount must be greater than zero")
+    private Double amount;
+
+    @Pattern(
+        regexp = "^(success|failed)$",
+        message = "Status must be 'success' or 'failed'"
+    )
+    private String status;
 }

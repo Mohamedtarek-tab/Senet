@@ -1,7 +1,6 @@
 package com.senet.auth.controller;
 
 import com.senet.auth.dto.AuthRequest;
-import com.senet.auth.dto.AuthResponse;
 import com.senet.auth.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,6 +42,15 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.status(401).body(Map.of("error", e.getMessage()));
         }
+    }
+
+    @PostMapping("/register/employee")
+    public ResponseEntity<?> registerEmployee(@RequestBody AuthRequest request) {
+    try {
+        return ResponseEntity.ok(authService.registerEmployee(request));
+    } catch (Exception e) {
+        return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+    }
     }
 
     @PostMapping("/logout")

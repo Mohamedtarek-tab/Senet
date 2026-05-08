@@ -274,7 +274,7 @@ async function changeBookingStatus(id, status) {
 
 async function cancelBooking(id) {
   try {
-    await apiUpdateBookingStatus(id, 'cancelled');
+    await apiFetch(`/api/bookings/${id}/cancel`, { method: 'PATCH' });
     showToast('Booking cancelled');
     await renderBookings();
   } catch (err) {
