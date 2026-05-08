@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  gateway-service:
+    build:
+      context: .
+      dockerfile: gateway-service/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - AUTH_SERVICE_URL=http://auth-service:8081
+      - CAR_SERVICE_URL=http://car-service:8082
+      - BOOKING_SERVICE_URL=http://booking-service:8083
+    depends_on:
+      - auth-service
+      - car-service
+      - booking-service
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: auth-service/Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      - DB_PATH=/data/users.db
+    volumes:
+      - ./data:/data
+
+  car-service:
+    build:
+      context: .
+      dockerfile: car-service/Dockerfile
+    ports:
+      - "8082:8082"
+    environment:
+      - DB_PATH=/data/cars.db
+    volumes:
+      - ./data:/data
+
+  booking-service:
+    build:
+      context: .
+      dockerfile: booking-service/Dockerfile
+    ports:
+      - "8083:8083"
+    environment:
+      - DB_PATH=/data/bookings.db
+    volumes:
+      - ./data:/data
+

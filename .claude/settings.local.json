@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(head *)",
+      "PowerShell(mvn *)",
+      "PowerShell(docker info *)",
+      "PowerShell(docker context ls *)",
+      "PowerShell(docker --context default info 2>&1 | Select-Object -First 3)",
+      "PowerShell(docker --context default ps 2>&1)",
+      "PowerShell(docker --context default exec backend-auth-service-1 sh -c \"sqlite3 /data/users.db '.tables'\" 2>&1)",
+      "PowerShell(curl *)",
+      "PowerShell(docker --context default logs backend-gateway-service-1 --tail 30 2>&1)",
+      "PowerShell(docker --context default logs backend-auth-service-1 --tail 40 2>&1)",
+      "PowerShell(node --version 2>&1)",
+      "PowerShell($result = Invoke-WebRequest -Uri \"http://localhost:8080/api/auth/login\" -Method OPTIONS -Headers @{ \"Origin\" = \"null\"; \"Access-Control-Request-Method\" = \"POST\"; \"Access-Control-Request-Headers\" = \"Content-Type\" } -UseBasicParsing 2>&1; $result.Headers)",
+      "PowerShell($body = '{\"email\":\"admin@senet.com\",\"password\":\"admin123\"}'; $res = Invoke-WebRequest -Uri \"http://localhost:8080/api/auth/login\" -Method POST -ContentType \"application/json\" -Body $body -Headers @{\"Origin\"=\"null\"} -UseBasicParsing; Write-Host \"Status:\" $res.StatusCode; $res.Headers | ConvertTo-Json)",
+      "PowerShell(docker --context default compose -f \"D:\\\\study\\\\LVL 3\\\\second term\\\\SE_2\\\\project\\\\SE2_project\\\\backend\\\\docker-compose.yml\" ps --format \"table {{.Name}}\\\\t{{.Status}}\" 2>$null)",
+      "PowerShell(docker --context default ps --format \"table {{.Names}}\\\\t{{.Status}}\" 2>$null)",
+      "PowerShell(docker --context default compose -f \"D:\\\\study\\\\LVL 3\\\\second term\\\\SE_2\\\\project\\\\SE2_project\\\\backend\\\\docker-compose.yml\" up -d 2>&1 | Select-Object -Last 10)",
+      "PowerShell(docker --context default compose -f \"D:\\\\study\\\\LVL 3\\\\second term\\\\SE_2\\\\project\\\\SE2_project\\\\backend\\\\docker-compose.yml\" up -d --build auth-service 2>&1 | Select-Object -Last 8)",
+      "PowerShell(docker --context default logs backend-auth-service-1 --tail 30 2>$null)",
+      "PowerShell(docker --context default compose -f \"D:\\\\study\\\\LVL 3\\\\second term\\\\SE_2\\\\project\\\\SE2_project\\\\backend\\\\docker-compose.yml\" up -d --build auth-service 2>&1 | Select-Object -Last 6)",
+      "PowerShell(docker --context default compose -f \"D:\\\\study\\\\LVL 3\\\\second term\\\\SE_2\\\\project\\\\SE2_project\\\\backend\\\\docker-compose.yml\" up -d --build booking-service 2>&1 | Select-Object -Last 5)",
+      "PowerShell(docker --context default compose -f \"D:\\\\study\\\\LVL 3\\\\second term\\\\SE_2\\\\project\\\\SE2_project\\\\backend\\\\docker-compose.yml\" up -d --build booking-service 2>&1 | Select-Object -Last 8)",
+      "PowerShell(docker --context default rm -f backend-booking-service-1 2>$null; docker --context default compose -f \"D:\\\\study\\\\LVL 3\\\\second term\\\\SE_2\\\\project\\\\SE2_project\\\\backend\\\\docker-compose.yml\" up -d booking-service 2>&1 | Select-Object -Last 6)",
+      "PowerShell(docker --context default compose -f \"D:\\\\study\\\\LVL 3\\\\second term\\\\SE_2\\\\project\\\\SE2_project\\\\backend\\\\docker-compose.yml\" up -d --build auth-service booking-service 2>&1 | Select-Object -Last 8)",
+      "PowerShell(docker --context default compose -f \"D:\\\\study\\\\LVL 3\\\\second term\\\\SE_2\\\\project\\\\SE2_project\\\\backend\\\\docker-compose.yml\" up -d --build booking-service 2>&1 | Select-Object -Last 6)"
+    ]
+  }
+}

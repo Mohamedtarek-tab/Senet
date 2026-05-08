@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SENET — Luxury Car Rental</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Josefin+Sans:wght@200;300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style/main.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  TOAST NOTIFICATION                         -->
+<!-- ═══════════════════════════════════════════ -->
+<div id="toast">✦ Action completed successfully</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  PAGE: HOME (LANDING)                       -->
+<!-- ═══════════════════════════════════════════ -->
+<div id="page-home" class="page active">
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-logo">SENET<span>cars</span></div>
+    <div class="nav-links">
+      <a href="#" class="active">Home</a>
+      <a href="#" onclick="navigate('cars'); return false;">Cars</a>
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+    </div>
+    <div class="nav-cta">
+      <button class="btn btn-ghost btn-sm" onclick="showPage('page-login')">Login</button>
+      <button class="btn btn-gold btn-sm" onclick="showPage('page-register')">Register</button>
+    </div>
+    <div class="hamburger" onclick="toggleMobileMenu()">
+      <span></span><span></span><span></span>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-eyebrow"><span>Premium Fleet — Egypt's Finest</span></div>
+      <h1 class="hero-title">Drive Beyond<br><em>Ordinary</em></h1>
+      <p class="hero-desc">
+        Curated luxury vehicles. Effortless booking. Uncompromising service.
+        Experience the road the way it was meant to be experienced.
+      </p>
+      <div class="hero-actions">
+        <button class="btn btn-gold btn-lg" onclick="navigate('cars')">
+          ✦ Explore Fleet
+        </button>
+        <button class="btn btn-outline btn-lg" onclick="showPage('page-login')">
+          Book Now
+        </button>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="num">120+</div>
+        <div class="lbl">Luxury Vehicles</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">3,800+</div>
+        <div class="lbl">Happy Clients</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">15+</div>
+        <div class="lbl">Cities Covered</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Cars -->
+  <section class="section">
+    <div class="section-header">
+      <div class="ornament"><span class="label">Featured Fleet</span></div>
+      <h2 class="section-title">Our Signature <em style="font-style:italic;color:var(--gold)">Collection</em></h2>
+      <p class="section-subtitle" style="margin-top:12px;">Handpicked for performance, comfort, and prestige. Every vehicle serviced to perfection.</p>
+    </div>
+    <div class="cars-grid" id="home-cars-grid">
+      <!-- Car Cards injected by JS -->
+    </div>
+    <div style="text-align:center; margin-top:48px;">
+      <button class="btn btn-outline btn-lg" onclick="navigate('cars')">View All Vehicles</button>
+    </div>
+  </section>
+
+  <!-- Why Choose Us -->
+  <section class="section why-section">
+    <div class="section-header">
+      <div class="ornament"><span class="label">Why SENET</span></div>
+      <h2 class="section-title">The SENET <em style="font-style:italic;color:var(--gold)">Difference</em></h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🛡</div>
+        <h3>Fully Insured Fleet</h3>
+        <p>Every vehicle in our fleet carries comprehensive insurance and undergoes rigorous pre-rental inspection.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Instant Confirmation</h3>
+        <p>Book in minutes. Receive instant booking confirmation with all details delivered to your inbox.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🗝</div>
+        <h3>Concierge Delivery</h3>
+        <p>We deliver your vehicle to any location in the city — airport, hotel, or your doorstep.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📞</div>
+        <h3>24 / 7 Support</h3>
+        <p>Round-the-clock customer support. Roadside assistance and on-call concierge for every rental.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">SENET<span style="color:var(--white);font-weight:300">cars</span></div>
+        <p>Egypt's premier luxury car rental service. Delivering exceptional vehicles and unmatched service since 2018.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Fleet</h4>
+        <ul>
+          <li><a href="#">Sedans</a></li>
+          <li><a href="#">SUVs</a></li>
+          <li><a href="#">Sports Cars</a></li>
+          <li><a href="#">Electric</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Press</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Rental Policy</a></li>
+          <li><a href="#">Insurance</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2024 SENET Car Rental. All rights reserved.</p>
+      <p style="color:var(--gold-dim);">✦ Cairo · Alexandria · Sharm El Sheikh</p>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  PAGE: LOGIN                                -->
+<!-- ═══════════════════════════════════════════ -->
+<div id="page-login" class="page">
+  <div class="auth-page">
+    <div class="auth-visual">
+      <div class="auth-visual-content">
+        <div class="logo">SENET<span style="color:var(--white);font-weight:300">cars</span></div>
+        <h2>Welcome<br><em style="color:var(--gold)">Back</em></h2>
+        <p>Access your account and manage your luxury rental experience.</p>
+      </div>
+    </div>
+    <div class="auth-form-panel">
+      <div class="auth-form-wrap">
+        <div class="page-tag label">Sign In</div>
+        <h1>Login to<br>Your Account</h1>
+        <p class="sub">Don't have an account? <a href="#" onclick="showPage('page-register'); return false;">Register here</a></p>
+        <div class="form-group">
+          <label>Email Address</label>
+          <div class="input-icon">
+            <span class="icon">✉</span>
+            <input type="email" id="login-email" placeholder="you@example.com">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <div class="input-icon">
+            <span class="icon">🔒</span>
+            <input type="password" id="login-pass" placeholder="Enter your password">
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-bottom:24px;">
+          <a href="#" style="font-size:11px;color:var(--gold);">Forgot password?</a>
+        </div>
+        <button class="btn btn-gold" style="width:100%;justify-content:center;" onclick="loginAction(event)">
+          Sign In ✦
+        </button>
+        <div class="auth-bottom">
+          <a href="#" onclick="showPage('page-home'); return false;" style="color:var(--white-dim); font-size:11px;">← Back to Home</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  PAGE: REGISTER                             -->
+<!-- ═══════════════════════════════════════════ -->
+<div id="page-register" class="page">
+  <div class="auth-page">
+    <div class="auth-visual" style="background-image:url('https://images.unsplash.com/photo-1555215695-3004980ad54e?w=1200&q=80')">
+      <div class="auth-visual-content">
+        <div class="logo">SENET<span style="color:var(--white);font-weight:300">cars</span></div>
+        <h2>Join the<br><em style="color:var(--gold)">Prestige</em></h2>
+        <p>Become a SENET member and unlock exclusive access to our premium fleet.</p>
+      </div>
+    </div>
+    <div class="auth-form-panel">
+      <div class="auth-form-wrap">
+        <div class="page-tag label">Create Account</div>
+        <h1>Register</h1>
+        <p class="sub">Already a member? <a href="#" onclick="showPage('page-login'); return false;">Sign in here</a></p>
+        <div class="form-row">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" id="register-fname" placeholder="Ahmed">
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" id="register-lname" placeholder="Hassan">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="register-email" placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" placeholder="+20 1XX XXX XXXX">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="register-pass" placeholder="Create a password (min 8 chars)">
+        </div>
+        <div class="form-group">
+          <label>Confirm Password</label>
+          <input type="password" id="register-confirm-pass" placeholder="Repeat your password">
+        </div>
+        <button class="btn btn-gold" style="width:100%;justify-content:center;margin-top:8px;" onclick="registerAction(event)">
+          Create Account ✦
+        </button>
+        <div class="auth-bottom">
+          <a href="#" onclick="showPage('page-home'); return false;" style="color:var(--white-dim); font-size:11px;">← Back to Home</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  DASHBOARD LAYOUT (shared shell)            -->
+<!-- ═══════════════════════════════════════════ -->
+<div id="dashboard" class="dashboard-layout">
+  <!-- Sidebar overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="dashSidebar">
+    <div class="sidebar-logo">SENET<span>cars</span></div>
+    <div class="sidebar-user">
+      <div class="user-avatar">A</div>
+      <div class="user-info">
+        <div class="name" id="sidebar-name">Ahmed Hassan</div>
+        <div class="role" id="sidebar-role">Admin</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <!-- Admin Navigation -->
+      <div id="admin-nav-group">
+        <div class="sidebar-section-label">Dashboard</div>
+        <div class="nav-item" id="nav-overview" onclick="switchDash('dash-overview', this)">
+          <span class="nav-icon">◈</span> Overview
+        </div>
+        <div class="nav-item" id="nav-cars" onclick="switchDash('dash-cars', this)">
+          <span class="nav-icon">🚗</span> Cars
+        </div>
+        <div class="nav-item" id="nav-bookings" onclick="switchDash('dash-bookings', this)">
+          <span class="nav-icon">📋</span> All Bookings
+        </div>
+        <div class="sidebar-section-label">Management</div>
+        <div class="nav-item" id="nav-users" onclick="switchDash('dash-users', this)">
+          <span class="nav-icon">👥</span> Users
+        </div>
+        <div class="nav-item" onclick="switchDash('dash-add-car', this)">
+          <span class="nav-icon">＋</span> Add Car
+        </div>
+        <div class="sidebar-section-label">Account</div>
+        <div class="nav-item" id="nav-payments" onclick="switchDash('dash-payments', this)">
+          <span class="nav-icon">💳</span> Payments
+        </div>
+        <div class="nav-item" onclick="switchDash('dash-profile', this)">
+          <span class="nav-icon">👤</span> Profile
+        </div>
+      </div>
+      <!-- Client Navigation -->
+      <div id="client-nav-group">
+        <div class="sidebar-section-label">Browse</div>
+        <div class="nav-item" id="nav-client-cars" onclick="switchDash('dash-client-cars', this)">
+          <span class="nav-icon">🚗</span> Available Cars
+        </div>
+        <div class="sidebar-section-label">My Account</div>
+        <div class="nav-item" id="nav-my-bookings" onclick="switchDash('dash-bookings', this)">
+          <span class="nav-icon">📋</span> My Bookings
+        </div>
+        <div class="nav-item" id="nav-new-booking" onclick="switchDash('dash-booking-form', this)">
+          <span class="nav-icon">📅</span> New Booking
+        </div>
+        <div class="nav-item" id="nav-payments" onclick="switchDash('dash-payments', this)">
+          <span class="nav-icon">💳</span> Payments
+        </div>
+        <div class="nav-item" onclick="switchDash('dash-profile', this)">
+          <span class="nav-icon">👤</span> Profile
+        </div>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;margin-bottom:8px;" onclick="logoutAction()">
+        ✕ Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="dashboard-main">
+    <!-- Top Bar -->
+    <header class="dash-topbar">
+      <h2 id="dash-title">Overview</h2>
+      <div class="topbar-right">
+        <div class="notif-btn">🔔<span class="notif-dot"></span></div>
+        <div style="display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="switchDash('dash-profile', null)">
+          <div class="user-avatar" style="width:32px;height:32px;font-size:12px;">A</div>
+          <span id="topbar-user-name" style="font-size:12px;color:var(--silver);">User</span>
+        </div>
+        <button class="hamburger" style="display:flex;" onclick="openSidebar()">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </header>
+
+    <div class="dash-content">
+
+      <!-- ── OVERVIEW ── -->
+      <div id="dash-overview" class="dash-page active">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">🚗</div>
+            <div class="stat-num" id="stat-total-cars">—</div>
+            <div class="stat-label">Total Cars</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📋</div>
+            <div class="stat-num" id="stat-total-bookings">—</div>
+            <div class="stat-label">Total Bookings</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">⏳</div>
+            <div class="stat-num" id="stat-pending">—</div>
+            <div class="stat-label">Pending Bookings</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-num" id="stat-revenue">—</div>
+            <div class="stat-label">Total Revenue</div>
+          </div>
+        </div>
+
+        <!-- Recent Bookings Table (preview) -->
+        <div class="table-wrap">
+          <div class="table-header">
+            <h3>Recent Bookings</h3>
+            <div class="table-controls">
+              <button class="btn btn-outline btn-sm" onclick="switchDash('dash-bookings', document.getElementById('nav-bookings'))">View All</button>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Car</th>
+                <th>Client</th>
+                <th>Dates</th>
+                <th>Total</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="overview-bookings-body">
+              <tr><td colspan="5" style="text-align:center;color:var(--white-dim);padding:32px;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── CLIENT BROWSE CARS ── -->
+      <div id="dash-client-cars" class="dash-page">
+        <div style="margin-bottom:24px;">
+          <p class="label" style="margin-bottom:4px;">Available Vehicles</p>
+          <p class="dim-text" style="font-size:12px;">Browse and book from our luxury fleet</p>
+        </div>
+        <div style="display:flex;gap:12px;margin-bottom:28px;flex-wrap:wrap;align-items:center;">
+          <input class="search-input" id="client-search" placeholder="Search make, model..." style="width:240px;" oninput="filterClientCars()">
+          <select id="client-category-filter" onchange="filterClientCars()"
+            style="background:var(--surface);border:1px solid var(--border);color:var(--white);padding:9px 14px;border-radius:var(--radius);font-family:var(--font-ui);font-size:12px;outline:none;">
+            <option value="">All Categories</option>
+            <option>Luxury Sedan</option>
+            <option>SUV</option>
+            <option>Sports Car</option>
+            <option>Electric</option>
+            <option>Convertible</option>
+          </select>
+        </div>
+        <div class="cars-grid" id="client-cars-grid">
+          <p style="color:var(--white-dim);text-align:center;padding:40px;">Loading vehicles...</p>
+        </div>
+      </div>
+
+      <!-- ── CARS PAGE ── -->
+      <div id="dash-cars" class="dash-page">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+          <div>
+            <p class="label" style="margin-bottom:4px;">Car Management</p>
+            <p class="dim-text" id="fleet-count-text" style="font-size:12px;">— vehicles in fleet</p>
+          </div>
+          <button class="btn btn-gold btn-sm" onclick="switchDash('dash-add-car', null)">+ Add New Car</button>
+        </div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <h3>All Vehicles</h3>
+            <div class="table-controls">
+              <input class="search-input" placeholder="Search cars..." type="text">
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr><th>Vehicle</th><th>Category</th><th>Price/Day</th><th>Status</th><th>Year</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="cars-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── BOOKINGS PAGE ── -->
+      <div id="dash-bookings" class="dash-page">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+          <div>
+            <p class="label" id="bookings-page-label" style="margin-bottom:4px;">Bookings</p>
+            <p class="dim-text" style="font-size:12px;"><span id="bookings-count">—</span> total bookings</p>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <select id="bookings-filter-status" onchange="filterBookingsTable()" style="background:var(--surface);border:1px solid var(--border);color:var(--white);padding:8px 12px;border-radius:var(--radius);font-family:var(--font-ui);font-size:12px;outline:none;">
+              <option value="">All Status</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="pending">Pending</option>
+              <option value="cancelled">Cancelled</option>
+              <option value="completed">Completed</option>
+            </select>
+            <button class="btn btn-gold btn-sm" onclick="switchDash('dash-booking-form', null)">+ New Booking</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <h3>All Bookings</h3>
+            <div class="table-controls">
+              <input class="search-input" placeholder="Search bookings..." type="text">
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr><th>#</th><th>Car</th><th>Client</th><th>Pickup</th><th>Return</th><th>Amount</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="bookings-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── ADD / EDIT CAR ── -->
+      <div id="dash-add-car" class="dash-page">
+        <div style="max-width:680px;">
+          <div style="margin-bottom:28px;">
+            <p class="label" id="add-car-form-label" style="margin-bottom:6px;">Fleet Management</p>
+            <h3 id="add-car-form-title" style="font-family:var(--font-display);font-size:1.8rem;font-weight:300;">Add New Vehicle</h3>
+          </div>
+          <div class="card" style="padding:32px;">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Car Brand</label>
+                <input type="text" id="add-car-brand" placeholder="e.g. BMW, Mercedes">
+              </div>
+              <div class="form-group">
+                <label>Car Model</label>
+                <input type="text" id="add-car-model" placeholder="e.g. 7 Series, S-Class">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Year</label>
+                <input type="number" id="add-car-year" placeholder="2024">
+              </div>
+              <div class="form-group">
+                <label>Category</label>
+                <select id="add-car-category">
+                  <option>Luxury Sedan</option>
+                  <option>SUV</option>
+                  <option>Sports Car</option>
+                  <option>Electric</option>
+                  <option>Convertible</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Price per Day (EGP)</label>
+                <input type="number" id="add-car-price" placeholder="2400">
+              </div>
+              <div class="form-group">
+                <label>Status</label>
+                <select id="add-car-status">
+                  <option>Available</option>
+                  <option>Maintenance</option>
+                  <option>Reserved</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Engine</label>
+                <input type="text" id="add-car-engine" placeholder="e.g. 3.0L V6">
+              </div>
+              <div class="form-group">
+                <label>Transmission</label>
+                <select id="add-car-transmission">
+                  <option>Automatic</option>
+                  <option>Manual</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Image URL</label>
+              <input type="url" id="add-car-image" placeholder="https://...">
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <textarea id="add-car-description" placeholder="Describe the vehicle features, condition, and highlights..."></textarea>
+            </div>
+            <div style="display:flex;gap:12px;margin-top:8px;">
+              <button class="btn btn-gold" onclick="saveNewCar()">Save Vehicle</button>
+              <button class="btn btn-ghost" onclick="switchDash('dash-cars', null)">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CAR DETAIL ── -->
+      <div id="dash-car-detail" class="dash-page">
+        <div style="margin-bottom:24px;">
+          <button class="btn btn-ghost btn-sm" onclick="goBackToFleet()">← Back to Cars</button>
+        </div>
+        <div class="car-detail-layout">
+          <div class="car-detail-main">
+            <img class="car-detail-img" id="car-detail-img" src="https://images.unsplash.com/photo-1555215695-3004980ad54e?w=900&q=80" alt="Vehicle">
+            <div class="car-detail-info">
+              <p class="label" id="car-detail-meta" style="margin-bottom:6px;">BMW · Luxury Sedan · 2024</p>
+              <h1 id="car-detail-name">7 Series</h1>
+              <span class="badge badge-available" id="car-detail-status" style="margin-top:8px;">Available</span>
+              <div class="car-detail-specs-row">
+                <div class="detail-spec"><div class="lbl">Engine</div><div class="val" id="car-detail-engine">3.0L I6</div></div>
+                <div class="detail-spec"><div class="lbl">Trans.</div><div class="val" id="car-detail-trans">Automatic</div></div>
+                <div class="detail-spec"><div class="lbl">Category</div><div class="val" id="car-detail-category">Luxury Sedan</div></div>
+                <div class="detail-spec"><div class="lbl">Year</div><div class="val" id="car-detail-year">2024</div></div>
+              </div>
+              <p style="color:var(--white-dim);font-size:13px;line-height:1.9;" id="car-detail-desc">
+                A highly refined luxury vehicle built for maximum comfort and style.
+              </p>
+              <div id="car-detail-admin-btns" style="margin-top:24px;display:none;gap:12px;">
+                <button class="btn btn-danger btn-sm" onclick="deleteCar(window.selectedCarId)">✕ Remove Vehicle</button>
+              </div>
+            </div>
+          </div>
+          <div class="car-detail-sidebar">
+            <div class="booking-widget">
+              <h3>Book This Vehicle</h3>
+              <div class="price-display">
+                <span class="price" id="car-detail-price">EGP —</span>
+                <span class="per">/ day</span>
+              </div>
+              <button class="btn btn-gold" style="width:100%;justify-content:center;" onclick="bookCar(window.selectedCarId)">
+                ✦ Reserve Now
+              </button>
+              <p style="font-size:11px;color:var(--white-dim);text-align:center;margin-top:12px;">Free cancellation up to 24 hrs before pickup</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── BOOKING FORM ── -->
+      <div id="dash-booking-form" class="dash-page">
+        <div style="margin-bottom:28px;">
+          <p class="label" style="margin-bottom:6px;">New Booking</p>
+          <h3 style="font-family:var(--font-display);font-size:1.8rem;font-weight:300;">Create Reservation</h3>
+        </div>
+        <div class="booking-form-card">
+          <div class="form-group">
+            <label>Select Vehicle</label>
+            <select id="booking-car-select" onchange="updateBookingCalc()">
+              <option>Loading vehicles...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Your Name</label>
+            <input type="text" id="booking-client-name" placeholder="Full name">
+          </div>
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" id="booking-client-phone" placeholder="+20 1XX XXX XXXX">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Pickup Date</label>
+              <input type="date" id="booking-pickup" onchange="updateBookingCalc()">
+            </div>
+            <div class="form-group">
+              <label>Return Date</label>
+              <input type="date" id="booking-return" onchange="updateBookingCalc()">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Pickup Location</label>
+            <select id="booking-location">
+              <option>Cairo — Heliopolis Office</option>
+              <option>Cairo — Maadi Office</option>
+              <option>Cairo Airport — Terminal 1</option>
+              <option>Cairo Airport — Terminal 2</option>
+              <option>Alexandria Airport</option>
+              <option>Sharm El Sheikh Airport</option>
+              <option>Client Delivery (specify below)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Delivery Address (if applicable)</label>
+            <input type="text" id="booking-delivery" placeholder="Building, street, district, city">
+          </div>
+          <div class="form-group">
+            <label>Special Requests</label>
+            <textarea id="booking-notes" placeholder="Any special requirements..."></textarea>
+          </div>
+          <div style="display:flex;gap:12px;margin-top:8px;">
+            <button class="btn btn-gold" id="confirm-booking-btn" onclick="confirmBooking()">Confirm Booking</button>
+            <button class="btn btn-ghost" onclick="switchDash('dash-bookings', null)">Cancel</button>
+          </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="booking-summary-card">
+          <h3 style="font-family:var(--font-display);font-size:1.1rem;font-weight:400;margin-bottom:16px;">Booking Summary</h3>
+          <div class="summary-row"><span class="key">Vehicle</span><span id="booking-summary-car">—</span></div>
+          <div class="summary-row"><span class="key">Duration</span><span id="booking-summary-days">—</span></div>
+          <div class="summary-row"><span class="key">Daily Rate</span><span id="booking-summary-rate">—</span></div>
+          <div class="summary-row"><span class="key">Subtotal</span><span id="booking-summary-subtotal">—</span></div>
+          <div class="summary-row"><span class="key">Insurance</span><span id="booking-summary-insurance">EGP 300</span></div>
+          <div class="summary-row"><span class="key">Total</span><span id="booking-summary-total">—</span></div>
+        </div>
+      </div>
+
+      <!-- ── PROFILE ── -->
+      <div id="dash-profile" class="dash-page">
+        <div class="profile-header-card">
+          <div class="profile-avatar">A</div>
+          <div class="profile-info">
+            <h2 id="profile-name-header">User Name</h2>
+            <p class="dim-text" id="profile-email-header">user@example.com</p>
+            <div class="profile-meta">
+              <div class="profile-meta-item">Bookings <span id="profile-bookings-count">—</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="profile-grid">
+          <div class="profile-section-card">
+            <h3>Personal Information</h3>
+            <div class="form-group">
+              <label>Full Name</label>
+              <input type="text" id="profile-name-input" value="User Name">
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="profile-email-input" value="user@example.com">
+            </div>
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="tel" id="profile-phone-input" value="+20 100 123 4567">
+            </div>
+            <div class="form-group">
+              <label>National ID</label>
+              <input type="text" id="profile-id-input" value="29XXXXXXXXXXXXXXX">
+            </div>
+            <button class="btn btn-gold btn-sm" onclick="updateProfile()">Save Changes</button>
+          </div>
+          <div class="profile-section-card">
+            <h3>Security</h3>
+            <div class="form-group">
+              <label>Current Password</label>
+              <input type="password" id="profile-curr-pass" placeholder="••••••••">
+            </div>
+            <div class="form-group">
+              <label>New Password</label>
+              <input type="password" id="profile-new-pass" placeholder="Min 6 characters">
+            </div>
+            <div class="form-group">
+              <label>Confirm New Password</label>
+              <input type="password" id="profile-confirm-pass" placeholder="Repeat new password">
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="changePassword()">Update Password</button>
+          </div>
+        </div>
+
+        <!-- Booking History -->
+        <div class="table-wrap" style="margin-top:20px;">
+          <div class="table-header">
+            <h3>Booking History</h3>
+          </div>
+          <table>
+            <thead>
+              <tr><th>Car</th><th>Dates</th><th>Amount</th><th>Status</th></tr>
+            </thead>
+            <tbody id="profile-bookings-body">
+              <tr><td colspan="4" style="text-align:center;color:var(--white-dim);padding:24px;">No bookings yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── PAYMENT ── -->
+      <div id="dash-payment" class="dash-page">
+        <div style="margin-bottom:28px;">
+          <p class="label" style="margin-bottom:6px;">Secure Payment</p>
+          <h3 style="font-family:var(--font-display);font-size:1.8rem;font-weight:300;">Payment Details</h3>
+        </div>
+        <div class="payment-layout">
+          <div>
+            <!-- Card Visual -->
+            <div class="payment-card-visual">
+              <div class="card-chip">▣</div>
+              <div class="card-number" id="payment-card-display-number">•••• •••• •••• ————</div>
+              <div class="card-meta">
+                <div class="card-meta-item">
+                  <div class="lbl">Card Holder</div>
+                  <div class="val" id="payment-card-name">YOUR NAME</div>
+                </div>
+                <div class="card-meta-item">
+                  <div class="lbl">Expires</div>
+                  <div class="val" id="payment-card-display-expiry">MM/YY</div>
+                </div>
+                <div class="card-meta-item" style="text-align:right;">
+                  <div style="font-size:1.2rem;color:var(--gold);font-weight:600;">VISA</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card Form -->
+            <div class="card" style="padding:28px;">
+              <h3 style="font-family:var(--font-display);font-size:1.1rem;font-weight:400;margin-bottom:20px;">Card Information</h3>
+              <div class="form-group">
+                <label>Cardholder Name</label>
+                <input type="text" id="pay-card-holder" placeholder="As printed on card"
+                oninput="setText('payment-card-name', this.value || 'YOUR NAME')">
+              </div>
+              <div class="form-group">
+                <label>Card Number</label>
+                <input type="text" id="pay-card-number" placeholder="1234 5678 9012 3456" maxlength="19"
+                oninput="updateCardVisual()">
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Expiry Date</label>
+                  <input type="text" id="pay-expiry" placeholder="MM / YY" maxlength="7"
+                  oninput="setText('payment-card-display-expiry', this.value || 'MM/YY')">
+                </div>
+                <div class="form-group">
+                  <label>CVV</label>
+                  <input type="text" id="pay-cvv" placeholder="•••" maxlength="4">
+                </div>
+              </div>
+              <div style="display:flex;gap:12px;">
+                <button class="btn btn-gold" id="pay-btn" style="flex:1;justify-content:center;" onclick="processPayment()">
+                  ✦ Pay
+                </button>
+              </div>
+              <p style="text-align:center;margin-top:14px;font-size:10px;color:var(--silver-dim);letter-spacing:0.1em;">
+                🔒 256-bit SSL encryption · PCI DSS compliant
+              </p>
+            </div>
+          </div>
+
+          <!-- Order Summary Sidebar -->
+          <div>
+            <div class="card" style="padding:28px;">
+              <h3 style="font-family:var(--font-display);font-size:1.1rem;font-weight:400;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border);">Order Summary</h3>
+              <div style="display:flex;gap:12px;align-items:center;margin-bottom:20px;">
+                <div style="width:70px;height:48px;border-radius:var(--radius);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:20px;">🚗</div>
+                <div>
+                  <div id="pay-car-name" style="font-size:13px;font-weight:400;">—</div>
+                  <div style="font-size:11px;color:var(--white-dim);">Reserved Vehicle</div>
+                </div>
+              </div>
+              <div class="summary-row"><span class="key">Booking</span><span id="pay-booking-id" style="font-size:10px;color:var(--silver-dim);">—</span></div>
+              <div class="summary-row"><span class="key">Vehicle</span><span id="pay-summary-car">—</span></div>
+              <div class="summary-row"><span class="key">Pickup</span><span id="pay-summary-pickup">—</span></div>
+              <div class="summary-row"><span class="key">Return</span><span id="pay-summary-return">—</span></div>
+              <div class="summary-row"><span class="key">Duration</span><span id="pay-summary-days">—</span></div>
+              <div class="divider-gold" style="margin:16px 0;"></div>
+              <div class="summary-row"><span class="key">Daily Rate</span><span id="pay-summary-rate">—</span></div>
+              <div class="summary-row"><span class="key">Subtotal</span><span id="pay-summary-subtotal">—</span></div>
+              <div class="summary-row"><span class="key">Insurance</span><span id="pay-summary-insurance">EGP 300</span></div>
+              <div class="summary-row" style="font-size:14px;"><span class="key" style="color:var(--white);">Total</span><span id="pay-summary-total" style="font-size:1.2rem;font-family:var(--font-display);">—</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── USERS MANAGEMENT ── -->
+      <div id="dash-users" class="dash-page">
+        <div style="margin-bottom:24px;">
+          <p class="label" style="margin-bottom:4px;">User Management</p>
+          <p class="dim-text" style="font-size:12px;"><span id="users-count">—</span> registered users</p>
+        </div>
+        <div class="table-wrap">
+          <div class="table-header"><h3>All Users</h3></div>
+          <table>
+            <thead>
+              <tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="users-table-body">
+              <tr><td colspan="5" style="text-align:center;color:var(--white-dim);padding:32px;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── PAYMENTS HISTORY ── -->
+      <div id="dash-payments" class="dash-page">
+        <div style="margin-bottom:24px;">
+          <p class="label" id="payments-page-label" style="margin-bottom:4px;">Payment History</p>
+          <p class="dim-text" style="font-size:12px;"><span id="payments-count">—</span> transactions</p>
+        </div>
+        <div class="table-wrap">
+          <div class="table-header"><h3>Transactions</h3></div>
+          <table>
+            <thead>
+              <tr><th>#</th><th>Booking</th><th>Card</th><th>Expiry</th><th>Amount</th><th>Status</th></tr>
+            </thead>
+            <tbody id="payments-table-body">
+              <tr><td colspan="6" style="text-align:center;color:var(--white-dim);padding:32px;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /dash-content -->
+  </main>
+</div><!-- /dashboard -->
+
+<!-- ═══════════════════════════════════════════ -->
+<!--  PUBLIC CARS PAGE                           -->
+<!-- ═══════════════════════════════════════════ -->
+<div id="page-cars" class="page">
+  <nav class="navbar">
+    <div class="navbar-logo">SENET<span>cars</span></div>
+    <div class="nav-links">
+      <a href="#" onclick="showPage('page-home'); return false;">Home</a>
+      <a href="#" class="active">Cars</a>
+    </div>
+    <div class="nav-cta">
+      <button class="btn btn-gold btn-sm" onclick="showPage('page-login')">Login</button>
+    </div>
+  </nav>
+  <div style="padding-top:var(--nav-h);">
+    <div class="section">
+      <div class="section-header">
+        <div class="ornament"><span class="label">Available Now</span></div>
+        <h2 class="section-title">Our Full <em style="font-style:italic;color:var(--gold)">Fleet</em></h2>
+      </div>
+      <!-- Filters -->
+      <div style="display:flex;gap:12px;margin-bottom:36px;flex-wrap:wrap;align-items:center;">
+        <input class="search-input" placeholder="Search make, model..." style="width:240px;">
+        <select style="background:var(--surface);border:1px solid var(--border);color:var(--white);padding:9px 14px;border-radius:var(--radius);font-family:var(--font-ui);font-size:12px;outline:none;">
+          <option>All Categories</option>
+          <option>Luxury Sedan</option>
+          <option>SUV</option>
+          <option>Sports</option>
+          <option>Electric</option>
+        </select>
+        <select style="background:var(--surface);border:1px solid var(--border);color:var(--white);padding:9px 14px;border-radius:var(--radius);font-family:var(--font-ui);font-size:12px;outline:none;">
+          <option>Sort: Recommended</option>
+          <option>Price: Low to High</option>
+          <option>Price: High to Low</option>
+          <option>Newest First</option>
+        </select>
+      </div>
+      <div class="cars-grid" id="public-cars-grid"></div>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
