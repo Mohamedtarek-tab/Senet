@@ -26,7 +26,7 @@ public class PaymentController {
     }
 
     @GetMapping("/my")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated()") 
     public ResponseEntity<?> getMyPayments(
             @RequestHeader(value = "X-User-Id", required = false) String userId) {
         if (userId == null) return ResponseEntity.status(401).build();
