@@ -12,7 +12,15 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+    open-in-view: false   # suppresses the open-in-view warning
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+  instance:
+    prefer-ip-address: true
 
 jwt:
   secret: 4567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
-  expiration: 86400000 # 1 day
+  expiration: 86400000

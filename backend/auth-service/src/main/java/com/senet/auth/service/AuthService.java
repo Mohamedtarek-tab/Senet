@@ -7,6 +7,7 @@ import com.senet.auth.repository.UserRepository;
 import com.senet.auth.security.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.annotation.PostConstruct;
 import java.util.Optional;
@@ -35,7 +36,7 @@ public class AuthService {
             ));
         }
     }
-
+    @Transactional(readOnly = true)
     public AuthResponse login(AuthRequest request) {
         Optional<User> userOpt = userRepository.findByEmail(request.getEmail());
         if (userOpt.isPresent() && passwordEncoder.matches(request.getPassword(), userOpt.get().getPassword())) {
@@ -46,7 +47,7 @@ public class AuthService {
         }
         throw new RuntimeException("Invalid credentials");
     }
-
+    @Transactional
     public AuthResponse register(AuthRequest request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("Email already in use");
@@ -58,7 +59,7 @@ public class AuthService {
         String refreshToken = jwtUtil.generateToken(user, true);
         return new AuthResponse(accessToken, refreshToken, user.getRole(), user.getId(), user.getName());
     }
-
+    @Transactional(readOnly = true)
     public AuthResponse refresh(String refreshToken) {
         if (jwtUtil.validateToken(refreshToken, "refresh")) {
             String userIdStr = jwtUtil.extractClaims(refreshToken).getSubject();
@@ -72,6 +73,7 @@ public class AuthService {
         throw new RuntimeException("Invalid refresh token");
     }
 
+    @Transactional
     public AuthResponse registerEmployee(AuthRequest request) {
     if (userRepository.findByEmail(request.getEmail()).isPresent()) {
         throw new RuntimeException("Email already in use");

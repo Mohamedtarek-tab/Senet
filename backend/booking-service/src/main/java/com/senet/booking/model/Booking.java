@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 public class Booking {
 
     @Id
-    @NotBlank(message = "Booking ID is required")
     @Pattern(regexp = "^BK-[A-Z0-9]+$", message = "Booking ID must match format BK-XXXXXX")
     private String id;
 

@@ -127,6 +127,13 @@ public ResponseEntity<?> adminUpdateUser(
         return ResponseEntity.badRequest().body("You cannot change your own role");
     }
 
+    if (body.containsKey("role")) {
+        String newRole = body.get("role");
+        if (!newRole.matches("^(ADMIN|EMPLOYEE|CLIENT)$")) {
+            return ResponseEntity.badRequest().body("Invalid role. Must be ADMIN, EMPLOYEE, or CLIENT");
+        }
+    }
+
     Optional<User> userOpt = userRepository.findById(id);
     if (userOpt.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     User user = userOpt.get();

@@ -3,6 +3,7 @@ package com.senet.car.service;
 import com.senet.car.model.Car;
 import com.senet.car.repository.CarRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,21 +17,23 @@ public class CarService {
         this.carRepository = carRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<Car> getAllCars() {
         return carRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public Optional<Car> getCarById(Long id) {
         return carRepository.findById(id);
     }
-
+    @Transactional
     public Car createCar(Car car) {
         if (car.getStatus() == null) {
             car.setStatus("available");
         }
         return carRepository.save(car);
     }
-
+    @Transactional
     public Car updateCar(Long id, Car updatedCar) {
         return carRepository.findById(id).map(car -> {
             if (updatedCar.getBrand() != null) car.setBrand(updatedCar.getBrand());
@@ -46,7 +49,7 @@ public class CarService {
             return carRepository.save(car);
         }).orElseThrow(() -> new RuntimeException("Car not found"));
     }
-
+    @Transactional
     public void deleteCar(Long id) {
         carRepository.deleteById(id);
     }

@@ -5,6 +5,7 @@ import com.senet.booking.repository.BookingRepository;
 import com.senet.booking.repository.PaymentRepository;
 import com.senet.booking.strategy.StatusTransitionStrategy;
 
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -22,7 +24,6 @@ import java.util.UUID;
 public class BookingService {
 
     private final BookingRepository bookingRepository;
-    private final PaymentRepository paymentRepository;
     private final RestTemplate restTemplate;
     private final StatusTransitionStrategy statusStrategy;
 
@@ -30,26 +31,26 @@ public class BookingService {
     private String carServiceUrl;
 
     public BookingService(BookingRepository bookingRepository,
-            PaymentRepository paymentRepository,
-            StatusTransitionStrategy statusStrategy) {
+            StatusTransitionStrategy statusStrategy, 
+            RestTemplate restTemplate) {
         this.bookingRepository = bookingRepository;
-        this.paymentRepository = paymentRepository;
         this.statusStrategy = statusStrategy;
-        this.restTemplate = new RestTemplate();
+        this.restTemplate = restTemplate;
     }
-
+    @Transactional(readOnly = true)
     public Optional<Booking> getBookingById(String id) {
         return bookingRepository.findById(id);
     }
-
+    @Transactional(readOnly = true)
     public List<Booking> getAllBookings() {
         return bookingRepository.findAll();
     }
-
+    @Transactional(readOnly = true)
     public List<Booking> getMyBookings(String userId) {
         return bookingRepository.findByUserId(userId);
     }
 
+    @Transactional
     public Booking createBooking(Booking booking, String userId) {
         if (booking.getId() == null || booking.getId().isEmpty()) {
             booking.setId("BK-" + UUID.randomUUID().toString().substring(0, 6).toUpperCase());
@@ -63,6 +64,7 @@ public class BookingService {
         return saved;
     }
 
+    @Transactional
     public Booking updateBookingStatus(String id, String requestedStatus) {
         return bookingRepository.findById(id).map(booking -> {
             String previousStatus = booking.getStatus();
@@ -82,7 +84,7 @@ public class BookingService {
             return saved;
         }).orElseThrow(() -> new RuntimeException("Booking not found"));
     }
-
+    @Transactional
     public void deleteBooking(String id) {
         bookingRepository.findById(id).ifPresent(booking -> {
             if (!"cancelled".equals(booking.getStatus()) && !"completed".equals(booking.getStatus())) {
@@ -99,6 +101,7 @@ public class BookingService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("X-User-Role", "ADMIN");
+            headers.set("X-Internal-Call", "true");
             HttpEntity<Map<String, String>> entity = new HttpEntity<>(Map.of("status", status), headers);
             restTemplate.exchange(
                     carServiceUrl + "/api/cars/" + carId,

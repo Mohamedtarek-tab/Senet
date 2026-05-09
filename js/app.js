@@ -60,6 +60,7 @@ function goBackToFleet() {
 
 // ── Render Cars ───────────────────────────────────────────────────
 async function renderCars() {
+  const role = getRole();
   try {
     CARS = await apiGetCars() || [];
     const empty = '<p style="color:var(--white-dim);text-align:center;padding:40px;">No vehicles found.</p>';
@@ -85,9 +86,9 @@ async function renderCars() {
               <td><span class="badge ${c.status==='available'?'badge-available':'badge-booked'}">${c.status}</span></td>
               <td>${c.year}</td>
               <td><div class="action-btns">
-                <button class="btn-icon" onclick="editCar(${c.id})" title="Edit">✏</button>
-                <button class="btn-icon" onclick="openCarDetail(${c.id})" title="View">👁</button>
-                <button class="btn-icon del" onclick="deleteCar(${c.id})" title="Delete">✕</button>
+              ${role === 'ADMIN' ? `<button class="btn-icon" onclick="editCar(${c.id})" title="Edit">✏</button>` : ''}
+              <button class="btn-icon" onclick="openCarDetail(${c.id})" title="View">👁</button>
+              ${role === 'ADMIN' ? `<button class="btn-icon del" onclick="deleteCar(${c.id})" title="Delete">✕</button>` : ''}
               </div></td>
             </tr>`).join('')
         : '<tr><td colspan="6" style="text-align:center;color:var(--white-dim);padding:32px;">No vehicles found.</td></tr>';
@@ -246,8 +247,8 @@ function filterBookingsTable() {
                 <option value="completed" ${b.status==='completed'?'selected':''}>Completed</option>
                 <option value="cancelled" ${b.status==='cancelled'?'selected':''}>Cancelled</option>
               </select>` : ''}
-            ${(role === 'ADMIN' || role === 'EMPLOYEE') ? `
-              <button class="btn-icon del" onclick="deleteBooking('${b.id}')" title="Delete">🗑</button>` : ''}
+            ${role === 'ADMIN' ? `
+             <button class="btn-icon del" onclick="deleteBooking('${b.id}')" title="Delete">🗑</button>` : ''}
           </div></td>
         </tr>`).join('')
     : '<tr><td colspan="8" style="text-align:center;color:var(--white-dim);padding:32px;">No bookings found.</td></tr>';
@@ -447,7 +448,7 @@ async function renderPayments() {
   if (!getToken()) return;
   try {
     const role = getRole();
-    const payments = (role === 'ADMIN' || role === 'EMPLOYEE')
+    const payments = (role === 'ADMIN')
       ? (await apiGetAllPayments() || [])
       : (await apiGetMyPayments() || []);
     const tbody = $id('payments-table-body');
@@ -464,7 +465,7 @@ async function renderPayments() {
           </tr>`).join('')
       : '<tr><td colspan="6" style="text-align:center;color:var(--white-dim);padding:32px;">No payments yet.</td></tr>';
     setText('payments-count', payments.length);
-    setText('payments-page-label', (role === 'ADMIN' || role === 'EMPLOYEE') ? 'All Payments' : 'My Payments');
+    setText('payments-page-label', role === 'ADMIN' ? 'All Payments' : 'My Payments');
   } catch (err) {
     console.error('Failed to load payments', err);
   }
@@ -689,8 +690,7 @@ function applyRoleUI() {
   if (employeeNav) employeeNav.style.display = isEmployee                 ? 'block' : 'none';
 
   const addCarBtn = $id('add-car-btn');
-  if (addCarBtn) addCarBtn.style.display = (isAdmin || isEmployee) ? 'flex' : 'none';
-
+  if (addCarBtn) addCarBtn.style.display = isAdmin ? 'flex' : 'none';
   const savedName = localStorage.getItem('senet_name') || '';
   const displayName = savedName || (getUserId() ? 'User' : 'Guest');
   const letter = displayName.charAt(0).toUpperCase();

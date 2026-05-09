@@ -1,6 +1,7 @@
 FROM maven:3.9.6-eclipse-temurin-21-alpine AS build
 WORKDIR /app
 COPY pom.xml .
+COPY eureka-server ./eureka-server
 COPY gateway-service ./gateway-service
 COPY auth-service ./auth-service
 COPY car-service ./car-service
