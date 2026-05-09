@@ -53,7 +53,8 @@ function openCarDetail(carId) {
 }
 
 function goBackToFleet() {
-  if (getRole() === 'ADMIN') switchDash('dash-cars', $id('nav-cars'));
+  const role = getRole();
+  if (role === 'ADMIN' || role === 'EMPLOYEE') switchDash('dash-cars', $id('nav-cars'));
   else switchDash('dash-client-cars', $id('nav-client-cars'));
 }
 
@@ -68,7 +69,6 @@ async function renderCars() {
     if ($id('public-cars-grid'))
       $id('public-cars-grid').innerHTML = CARS.length ? CARS.map(carCard).join('') : empty;
 
-    // Admin fleet table
     if ($id('cars-table-body')) {
       $id('cars-table-body').innerHTML = CARS.length
         ? CARS.map(c => `
@@ -173,7 +173,7 @@ async function renderBookings() {
   if (!getToken()) return;
   try {
     const role = getRole();
-    BOOKINGS = role === 'ADMIN'
+    BOOKINGS = (role === 'ADMIN' || role === 'EMPLOYEE')
       ? (await apiGetAllBookings() || [])
       : (await apiGetMyBookings() || []);
 
@@ -184,7 +184,6 @@ async function renderBookings() {
 
     filterBookingsTable();
 
-    // Overview recent bookings (admin only)
     if ($id('overview-bookings-body')) {
       $id('overview-bookings-body').innerHTML = BOOKINGS.slice(0, 5).map(b => `
         <tr>
@@ -196,7 +195,6 @@ async function renderBookings() {
         </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--white-dim);">No bookings yet.</td></tr>';
     }
 
-    // Profile booking history
     if ($id('profile-bookings-body')) {
       $id('profile-bookings-body').innerHTML = BOOKINGS.length
         ? BOOKINGS.slice(0, 10).map(b => `
@@ -209,12 +207,11 @@ async function renderBookings() {
         : '<tr><td colspan="4" style="text-align:center;color:var(--white-dim);">No bookings yet.</td></tr>';
     }
 
-    // Stats
     setText('stat-total-bookings', BOOKINGS.length);
     setText('stat-pending', BOOKINGS.filter(b => b.status === 'pending').length);
     setText('stat-revenue', computeRevenue());
     setText('bookings-count', BOOKINGS.length);
-    setText('bookings-page-label', role === 'ADMIN' ? 'All Bookings' : 'My Bookings');
+    setText('bookings-page-label', (role === 'ADMIN' || role === 'EMPLOYEE') ? 'All Bookings' : 'My Bookings');
     setText('profile-bookings-count', BOOKINGS.length);
   } catch (err) {
     console.error('Failed to load bookings', err);
@@ -242,13 +239,14 @@ function filterBookingsTable() {
           <td style="color:var(--gold)">${b.amount}</td>
           <td><span class="badge ${statusCls[b.status]||'badge-pending'}">${b.status}</span></td>
           <td><div class="action-btns">
-            ${role === 'ADMIN' ? `
+            ${(role === 'ADMIN' || role === 'EMPLOYEE') ? `
               <select onchange="changeBookingStatus('${b.id}',this.value)" style="background:var(--surface);border:1px solid var(--border);color:var(--white);padding:3px 6px;border-radius:4px;font-size:11px;font-family:var(--font-ui);">
                 <option value="pending"   ${b.status==='pending'  ?'selected':''}>Pending</option>
                 <option value="confirmed" ${b.status==='confirmed'?'selected':''}>Confirmed</option>
                 <option value="completed" ${b.status==='completed'?'selected':''}>Completed</option>
                 <option value="cancelled" ${b.status==='cancelled'?'selected':''}>Cancelled</option>
-              </select>
+              </select>` : ''}
+            ${(role === 'ADMIN' || role === 'EMPLOYEE') ? `
               <button class="btn-icon del" onclick="deleteBooking('${b.id}')" title="Delete">🗑</button>` : ''}
           </div></td>
         </tr>`).join('')
@@ -449,7 +447,7 @@ async function renderPayments() {
   if (!getToken()) return;
   try {
     const role = getRole();
-    const payments = role === 'ADMIN'
+    const payments = (role === 'ADMIN' || role === 'EMPLOYEE')
       ? (await apiGetAllPayments() || [])
       : (await apiGetMyPayments() || []);
     const tbody = $id('payments-table-body');
@@ -466,7 +464,7 @@ async function renderPayments() {
           </tr>`).join('')
       : '<tr><td colspan="6" style="text-align:center;color:var(--white-dim);padding:32px;">No payments yet.</td></tr>';
     setText('payments-count', payments.length);
-    setText('payments-page-label', role === 'ADMIN' ? 'All Payments' : 'My Payments');
+    setText('payments-page-label', (role === 'ADMIN' || role === 'EMPLOYEE') ? 'All Payments' : 'My Payments');
   } catch (err) {
     console.error('Failed to load payments', err);
   }
@@ -486,8 +484,9 @@ async function renderUsers() {
             <td>
               <select onchange="updateUserRole('${u.id}',this.value)"
                 style="background:var(--surface);border:1px solid var(--border);color:var(--white);padding:3px 6px;border-radius:4px;font-size:11px;font-family:var(--font-ui);">
-                <option value="CLIENT" ${u.role==='CLIENT'?'selected':''}>Client</option>
-                <option value="ADMIN"  ${u.role==='ADMIN' ?'selected':''}>Admin</option>
+                <option value="CLIENT"   ${u.role==='CLIENT'  ?'selected':''}>Client</option>
+                <option value="EMPLOYEE" ${u.role==='EMPLOYEE'?'selected':''}>Employee</option>
+                <option value="ADMIN"    ${u.role==='ADMIN'   ?'selected':''}>Admin</option>
               </select>
             </td>
             <td><div class="action-btns">
@@ -500,6 +499,11 @@ async function renderUsers() {
 }
 
 async function updateUserRole(id, role) {
+  if (id === getUserId()) {
+    showToast('You cannot change your own role');
+    await renderUsers();
+    return;
+  }
   try {
     await apiUpdateUser(id, { role });
     showToast('Role updated');
@@ -507,6 +511,10 @@ async function updateUserRole(id, role) {
 }
 
 async function deleteUser(id) {
+  if (id === getUserId()) {
+    showToast('You cannot delete your own account');
+    return;
+  }
   if (!confirm('Delete this user permanently?')) return;
   try {
     await apiDeleteUser(id);
@@ -584,9 +592,9 @@ function showPage(id) {
     const navMap = {
       'dash-overview':     'nav-overview',
       'dash-cars':         'nav-cars',
-      'dash-bookings':     role === 'ADMIN' ? 'nav-bookings' : 'nav-my-bookings',
+      'dash-bookings':     (role === 'ADMIN' || role === 'EMPLOYEE') ? 'nav-bookings' : 'nav-my-bookings',
       'dash-client-cars':  'nav-client-cars',
-      'dash-booking-form': role === 'ADMIN' ? null : 'nav-new-booking',
+      'dash-booking-form': (role === 'ADMIN' || role === 'EMPLOYEE') ? null : 'nav-new-booking',
       'dash-add-car':      null,
       'dash-car-detail':   null,
       'dash-profile':      null,
@@ -594,7 +602,8 @@ function showPage(id) {
       'dash-payments':     'nav-payments',
       'dash-users':        'nav-users',
     };
-    const page = (saved && $id(saved)) ? saved : (role === 'ADMIN' ? 'dash-overview' : 'dash-client-cars');
+    const page = (saved && $id(saved)) ? saved :
+      (role === 'ADMIN' || role === 'EMPLOYEE') ? 'dash-overview' : 'dash-client-cars';
     _activateDashPage(page, $id(navMap[page] || ''));
     if (page === 'dash-client-cars') renderClientCars();
     if (page === 'dash-profile') loadProfileData();
@@ -625,7 +634,6 @@ function switchDash(pageId, navEl) {
   _activateDashPage(pageId, navEl);
   closeSidebar();
 
-  // Page-specific setup
   if (pageId === 'dash-car-detail' && window.selectedCarId) {
     const c = CARS.find(car => car.id == window.selectedCarId);
     if (c) {
@@ -642,7 +650,8 @@ function switchDash(pageId, navEl) {
       setText('car-detail-desc', c.description || 'A highly refined luxury vehicle built for maximum comfort and style.');
       setText('car-detail-price', 'EGP ' + c.pricePerDay.toLocaleString());
       const adminBtns = $id('car-detail-admin-btns');
-      if (adminBtns) adminBtns.style.display = getRole() === 'ADMIN' ? 'flex' : 'none';
+      const role = getRole();
+      if (adminBtns) adminBtns.style.display = (role === 'ADMIN' || role === 'EMPLOYEE') ? 'flex' : 'none';
     }
   }
 
@@ -667,20 +676,27 @@ function switchDash(pageId, navEl) {
 }
 
 function applyRoleUI() {
-  if (typeof getRole !== 'function') return;
-  const isAdmin = getRole() === 'ADMIN';
+  const role = getRole();
+  const isAdmin = role === 'ADMIN';
+  const isEmployee = role === 'EMPLOYEE';
 
   const adminNav = $id('admin-nav-group');
   const clientNav = $id('client-nav-group');
-  if (adminNav) adminNav.style.display = isAdmin ? 'block' : 'none';
-  if (clientNav) clientNav.style.display = isAdmin ? 'none' : 'block';
+  const employeeNav = $id('employee-nav-group');
+
+  if (adminNav)    adminNav.style.display    = isAdmin                    ? 'block' : 'none';
+  if (clientNav)   clientNav.style.display   = (!isAdmin && !isEmployee)  ? 'block' : 'none';
+  if (employeeNav) employeeNav.style.display = isEmployee                 ? 'block' : 'none';
+
+  const addCarBtn = $id('add-car-btn');
+  if (addCarBtn) addCarBtn.style.display = (isAdmin || isEmployee) ? 'flex' : 'none';
 
   const savedName = localStorage.getItem('senet_name') || '';
   const displayName = savedName || (getUserId() ? 'User' : 'Guest');
   const letter = displayName.charAt(0).toUpperCase();
 
   setText('sidebar-name', displayName);
-  setText('sidebar-role', isAdmin ? 'Admin' : 'Client');
+  setText('sidebar-role', isAdmin ? 'Admin' : isEmployee ? 'Employee' : 'Client');
   document.querySelectorAll('.user-avatar').forEach(el => el.textContent = letter);
   setText('topbar-user-name', displayName.split(' ')[0]);
   setText('profile-name-header', displayName);

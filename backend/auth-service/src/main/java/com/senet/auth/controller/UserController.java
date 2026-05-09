@@ -116,22 +116,39 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> adminUpdateUser(@PathVariable UUID id, @RequestBody Map<String, String> body) {
-        Optional<User> userOpt = userRepository.findById(id);
-        if (userOpt.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        User user = userOpt.get();
-        if (body.containsKey("name"))  user.setName(body.get("name"));
-        if (body.containsKey("email")) user.setEmail(body.get("email"));
-        if (body.containsKey("phone")) user.setPhone(body.get("phone"));
-        if (body.containsKey("role"))  user.setRole(body.get("role"));
-        userRepository.save(user);
-        return ResponseEntity.ok().build();
+@PreAuthorize("hasRole('ADMIN')")
+public ResponseEntity<?> adminUpdateUser(
+        @PathVariable UUID id,
+        @RequestHeader("X-User-Id") String requesterId,
+        @RequestBody Map<String, String> body) {
+
+    // Prevent admin from changing their own role
+    if (id.equals(UUID.fromString(requesterId)) && body.containsKey("role")) {
+        return ResponseEntity.badRequest().body("You cannot change your own role");
     }
+
+    Optional<User> userOpt = userRepository.findById(id);
+    if (userOpt.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    User user = userOpt.get();
+    if (body.containsKey("name"))  user.setName(body.get("name"));
+    if (body.containsKey("email")) user.setEmail(body.get("email"));
+    if (body.containsKey("phone")) user.setPhone(body.get("phone"));
+    if (body.containsKey("role"))  user.setRole(body.get("role"));
+    userRepository.save(user);
+    return ResponseEntity.ok().build();
+}
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> deleteUser(@PathVariable UUID id) {
+    public ResponseEntity<?> deleteUser(
+            @PathVariable UUID id,
+            @RequestHeader("X-User-Id") String requesterId) {
+
+        // Prevent admin from deleting themselves
+        if (id.equals(UUID.fromString(requesterId))) {
+            return ResponseEntity.badRequest().body("You cannot delete your own account");
+        }
+
         if (!userRepository.existsById(id)) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         userRepository.deleteById(id);
         return ResponseEntity.noContent().build();

@@ -24,10 +24,15 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @PostConstruct
+        @PostConstruct
     public void initAdmin() {
         if (userRepository.findByEmail("admin@senet.com").isEmpty()) {
-            userRepository.save(new User("admin@senet.com", passwordEncoder.encode("admin123"), "ADMIN", "Admin Hassan"));
+            userRepository.save(new User(
+                "admin@senet.com",
+                passwordEncoder.encode("admin123"),  // ← must be encoded
+                "ADMIN",
+                "Admin Hassan"
+            ));
         }
     }
 
@@ -66,4 +71,22 @@ public class AuthService {
         }
         throw new RuntimeException("Invalid refresh token");
     }
+
+    public AuthResponse registerEmployee(AuthRequest request) {
+    if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+        throw new RuntimeException("Email already in use");
+    }
+    // Creates EMPLOYEE role instead of CLIENT
+    User user = new User(
+        request.getEmail(),
+        passwordEncoder.encode(request.getPassword()),
+        "EMPLOYEE",
+        request.getName()
+    );
+    userRepository.save(user);
+
+    String accessToken  = jwtUtil.generateToken(user, false);
+    String refreshToken = jwtUtil.generateToken(user, true);
+    return new AuthResponse(accessToken, refreshToken, user.getRole(), user.getId(), user.getName());
+}
 }

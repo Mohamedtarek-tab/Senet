@@ -1,4 +1,4 @@
-FROM maven:3.9.6-eclipse-temurin-17-alpine AS build
+FROM maven:3.9.6-eclipse-temurin-21-alpine AS build
 WORKDIR /app
 COPY pom.xml .
 COPY gateway-service ./gateway-service
@@ -7,8 +7,9 @@ COPY car-service ./car-service
 COPY booking-service ./booking-service
 RUN mvn clean package -pl auth-service -am -DskipTests
 
-FROM eclipse-temurin:17-jdk-alpine
-VOLUME /tmp
+FROM eclipse-temurin:21-jre-alpine
 RUN mkdir /data
-COPY --from=build /app/auth-service/target/*.jar app.jar
-ENTRYPOINT ["java","-jar","/app.jar"]
+WORKDIR /app
+COPY --from=build /app/auth-service/target/auth-service-1.0.0.jar app.jar
+EXPOSE 8081
+ENTRYPOINT ["java", "-jar", "app.jar"]

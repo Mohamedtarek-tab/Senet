@@ -2,6 +2,9 @@ package com.senet.booking.service;
 
 import com.senet.booking.model.Booking;
 import com.senet.booking.repository.BookingRepository;
+import com.senet.booking.repository.PaymentRepository;
+import com.senet.booking.strategy.StatusTransitionStrategy;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -12,23 +15,30 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class BookingService {
 
     private final BookingRepository bookingRepository;
+    private final PaymentRepository paymentRepository;
     private final RestTemplate restTemplate;
+    private final StatusTransitionStrategy statusStrategy;
 
     @Value("${car.service.url:http://localhost:8082}")
     private String carServiceUrl;
 
-    public BookingService(BookingRepository bookingRepository) {
+    public BookingService(BookingRepository bookingRepository,
+            PaymentRepository paymentRepository,
+            StatusTransitionStrategy statusStrategy) {
         this.bookingRepository = bookingRepository;
+        this.paymentRepository = paymentRepository;
+        this.statusStrategy = statusStrategy;
         this.restTemplate = new RestTemplate();
     }
 
-    public java.util.Optional<Booking> getBookingById(String id) {
+    public Optional<Booking> getBookingById(String id) {
         return bookingRepository.findById(id);
     }
 
@@ -53,13 +63,18 @@ public class BookingService {
         return saved;
     }
 
-    public Booking updateBookingStatus(String id, String status) {
+    public Booking updateBookingStatus(String id, String requestedStatus) {
         return bookingRepository.findById(id).map(booking -> {
             String previousStatus = booking.getStatus();
-            booking.setStatus(status);
+
+            // Strategy pattern — validates the transition is legal before applying it
+            String newStatus = statusStrategy.transition(previousStatus, requestedStatus);
+
+            booking.setStatus(newStatus);
             Booking saved = bookingRepository.save(booking);
+
             // Free the car when a booking is cancelled or completed
-            if (("cancelled".equals(status) || "completed".equals(status))
+            if (("cancelled".equals(newStatus) || "completed".equals(newStatus))
                     && !"cancelled".equals(previousStatus)
                     && !"completed".equals(previousStatus)) {
                 updateCarStatus(saved.getCarId(), "available");
@@ -78,22 +93,21 @@ public class BookingService {
     }
 
     private void updateCarStatus(Long carId, String status) {
-        if (carId == null) return;
+        if (carId == null)
+            return;
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            // Pass ADMIN role so the car-service @PreAuthorize check passes
             headers.set("X-User-Role", "ADMIN");
             HttpEntity<Map<String, String>> entity = new HttpEntity<>(Map.of("status", status), headers);
             restTemplate.exchange(
-                carServiceUrl + "/api/cars/" + carId,
-                HttpMethod.PUT,
-                entity,
-                Void.class
-            );
+                    carServiceUrl + "/api/cars/" + carId,
+                    HttpMethod.PUT,
+                    entity,
+                    Void.class);
         } catch (Exception e) {
-            // Log but don't fail the booking operation — car status is eventual-consistent
-            System.err.println("Warning: could not update car " + carId + " status to " + status + ": " + e.getMessage());
+            System.err
+                    .println("Warning: could not update car " + carId + " status to " + status + ": " + e.getMessage());
         }
     }
 }

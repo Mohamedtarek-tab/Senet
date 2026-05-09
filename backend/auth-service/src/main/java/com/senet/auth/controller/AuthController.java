@@ -4,6 +4,8 @@ import com.senet.auth.dto.AuthRequest;
 import com.senet.auth.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.Map;
 
@@ -18,7 +20,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequest request) {
+    public ResponseEntity<?> login(@Valid@RequestBody AuthRequest request) {
         try {
             return ResponseEntity.ok(authService.login(request));
         } catch (Exception e) {
@@ -27,7 +29,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody AuthRequest request) {
+    public ResponseEntity<?> register(@Valid @RequestBody AuthRequest request) {
         try {
             return ResponseEntity.ok(authService.register(request));
         } catch (Exception e) {
@@ -36,7 +38,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@RequestBody Map<String, String> body) {
+    public ResponseEntity<?> refresh(@Valid @RequestBody Map<String, String> body) {
         try {
             return ResponseEntity.ok(authService.refresh(body.get("refreshToken")));
         } catch (Exception e) {
@@ -45,7 +47,8 @@ public class AuthController {
     }
 
     @PostMapping("/register/employee")
-    public ResponseEntity<?> registerEmployee(@RequestBody AuthRequest request) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> registerEmployee(@Valid @RequestBody AuthRequest request) {
     try {
         return ResponseEntity.ok(authService.registerEmployee(request));
     } catch (Exception e) {

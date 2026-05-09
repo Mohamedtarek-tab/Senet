@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -33,13 +34,13 @@ public class CarController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> createCar(@RequestBody Car car) {
+    public ResponseEntity<?> createCar(@Valid @RequestBody Car car) {
         return ResponseEntity.status(HttpStatus.CREATED).body(carService.createCar(car));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> updateCar(@PathVariable Long id, @RequestBody Car car) {
+    public ResponseEntity<?> updateCar(@PathVariable Long id, @Valid @RequestBody Car car) {
         try {
             return ResponseEntity.ok(carService.updateCar(id, car));
         } catch (Exception e) {

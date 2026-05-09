@@ -323,6 +323,26 @@
           <span class="nav-icon">👤</span> Profile
         </div>
       </div>
+       <div id="employee-nav-group">
+        <div class="sidebar-section-label">Dashboard</div>
+        <div class="nav-item" id="nav-emp-overview" onclick="switchDash('dash-overview', this)">
+          <span class="nav-icon">◈</span> Overview
+        </div>
+        <div class="sidebar-section-label">Operations</div>
+        <div class="nav-item" id="nav-emp-bookings" onclick="switchDash('dash-bookings', this)">
+          <span class="nav-icon">📋</span> All Bookings
+        </div>
+        <div class="nav-item" id="nav-emp-cars" onclick="switchDash('dash-cars', this)">
+          <span class="nav-icon">🚗</span> Car Inventory
+        </div>
+        <div class="sidebar-section-label">Account</div>
+        <div class="nav-item" id="nav-emp-payments" onclick="switchDash('dash-payments', this)">
+          <span class="nav-icon">💳</span> Payments
+        </div>
+        <div class="nav-item" onclick="switchDash('dash-profile', this)">
+          <span class="nav-icon">👤</span> Profile
+        </div>
+      </div>
     </nav>
     <div class="sidebar-footer">
       <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;margin-bottom:8px;" onclick="logoutAction()">
@@ -430,7 +450,7 @@
             <p class="label" style="margin-bottom:4px;">Car Management</p>
             <p class="dim-text" id="fleet-count-text" style="font-size:12px;">— vehicles in fleet</p>
           </div>
-          <button class="btn btn-gold btn-sm" onclick="switchDash('dash-add-car', null)">+ Add New Car</button>
+          <button class="btn btn-gold btn-sm" id="add-car-btn" onclick="switchDash('dash-add-car', null)">+ Add New Car</button>
         </div>
         <div class="table-wrap">
           <div class="table-header">
