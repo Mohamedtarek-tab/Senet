@@ -294,7 +294,7 @@ async function saveNewCar() {
   const imageUrl = $id('add-car-image').value.trim();
   const description = $id('add-car-description').value.trim();
 
-  if (!brand || !model || !pricePerDay) { alert('Please fill required fields: brand, model, price'); return; }
+  if (!brand || !model || !pricePerDay) { showToast('Please fill required fields: brand, model, price'); return; }
 
   const btn = document.querySelector('#dash-add-car .btn-gold');
   btn.textContent = 'Saving...'; btn.disabled = true;
@@ -314,7 +314,7 @@ async function saveNewCar() {
     await renderCars();
     switchDash('dash-cars', $id('nav-cars'));
   } catch (err) {
-    alert(err.message);
+    showToast('Error: ' + err.message);
   } finally {
     btn.textContent = 'Save Vehicle'; btn.disabled = false;
   }
@@ -322,18 +322,20 @@ async function saveNewCar() {
 
 // ── Profile ───────────────────────────────────────────────────────
 async function updateProfile() {
-  const name = $id('profile-name-input').value.trim();
-  const email = $id('profile-email-input').value.trim();
-  const phone = $id('profile-phone-input').value.trim();
+  const name       = $id('profile-name-input').value.trim();
+  const email      = $id('profile-email-input').value.trim();
+  const phone      = $id('profile-phone-input').value.trim();
   const nationalId = $id('profile-id-input').value.trim();
-  if (!name || !email) { alert('Name and email are required'); return; }
+
+  if (!name || !email) { showToast('Name and email are required'); return; }  // ← was showToast()
+
   try {
     const data = await apiUpdateMyProfile({ name, email, phone, nationalId });
-    showToast('Profile updated');
-    if (data.name) localStorage.setItem('senet_name', data.name);
+    showToast('Profile updated ✦');
+    if (data.name)  localStorage.setItem('senet_name', data.name);
     if (data.email) localStorage.setItem('senet_email', data.email);
     applyRoleUI();
-  } catch (err) { alert(err.message); }
+  } catch (err) { showToast(err.message); }  // ← was showToast()
 }
 
 async function loadProfileData() {
@@ -353,15 +355,18 @@ async function changePassword() {
   const curr    = $id('profile-curr-pass')?.value;
   const next    = $id('profile-new-pass')?.value;
   const confirm = $id('profile-confirm-pass')?.value;
-  if (!curr || !next || !confirm) { alert('Please fill all password fields'); return; }
-  if (next !== confirm)           { alert('New passwords do not match'); return; }
-  if (next.length < 6)            { alert('Password must be at least 6 characters'); return; }
+
+  // Replace all alerts with showToast:
+  if (!curr || !next || !confirm) { showToast('Please fill all password fields'); return; }
+  if (next !== confirm)           { showToast('New passwords do not match'); return; }
+  if (next.length < 6)            { showToast('Password must be at least 6 characters'); return; }
+
   try {
     await apiChangePassword(curr, next);
     showToast('Password updated successfully ✦');
     ['profile-curr-pass','profile-new-pass','profile-confirm-pass']
       .forEach(id => { const el = $id(id); if (el) el.value = ''; });
-  } catch (err) { alert('Failed: ' + err.message); }
+  } catch (err) { showToast('Failed: ' + err.message); }
 }
 
 // ── Booking Form ──────────────────────────────────────────────────
@@ -404,8 +409,8 @@ async function confirmBooking() {
   const clientName = $id('booking-client-name')?.value.trim();
   const pickup = $id('booking-pickup')?.value;
   const ret = $id('booking-return')?.value;
-  if (!sel || !clientName || !pickup || !ret) { alert('Please fill all required fields'); return; }
-  if (new Date(ret) <= new Date(pickup)) { alert('Return date must be after pickup date'); return; }
+  if (!sel || !clientName || !pickup || !ret) { showToast('Please fill all required fields'); return; }
+  if (new Date(ret) <= new Date(pickup)) { showToast('Return date must be after pickup date'); return; }
 
   const carId = parseInt(sel.value);
   const car = CARS.find(c => c.id === carId);
@@ -437,7 +442,7 @@ async function confirmBooking() {
     if (payBtn) payBtn.textContent = '✦ Pay EGP ' + total.toLocaleString();
     switchDash('dash-payment', null);
   } catch (err) {
-    alert(err.message);
+    showToast(err.message);
   } finally {
     if (btn) { btn.textContent = 'Confirm Booking'; btn.disabled = false; }
   }
@@ -502,13 +507,17 @@ async function renderUsers() {
 async function updateUserRole(id, role) {
   if (id === getUserId()) {
     showToast('You cannot change your own role');
-    await renderUsers();
+    await renderUsers(); // re-render to reset the dropdown visually
     return;
   }
   try {
     await apiUpdateUser(id, { role });
-    showToast('Role updated');
-  } catch (err) { showToast('Error: ' + err.message); }
+    showToast('Role updated ✦');
+    await renderUsers(); // re-render so table reflects the saved state
+  } catch (err) {
+    showToast('Error: ' + err.message);
+    await renderUsers(); // re-render to reset dropdown on failure too
+  }
 }
 
 async function deleteUser(id) {
@@ -554,9 +563,9 @@ async function processPayment() {
   const cardNumber = $id('pay-card-number')?.value.replace(/\s/g, '');
   const expiry = $id('pay-expiry')?.value.trim();
   const cvv = $id('pay-cvv')?.value.trim();
-  if (!cardHolder || !cardNumber || !expiry || !cvv) { alert('Please fill all card details'); return; }
+  if (!cardHolder || !cardNumber || !expiry || !cvv) { showToast('Please fill all card details'); return; }
   if (!selectedBookingId) {
-    alert('No active booking. Please book a car first.');
+    showToast('No active booking. Please book a car first.');
     switchDash('dash-client-cars', $id('nav-client-cars'));
     return;
   }
@@ -572,7 +581,7 @@ async function processPayment() {
     selectedBookingId = null; selectedBookingAmount = 0;
     switchDash('dash-payments', $id('nav-payments'));
   } catch (err) {
-    alert('Payment failed: ' + err.message);
+    showToast('Payment failed: ' + err.message);
   } finally {
     if (btn) { btn.textContent = '✦ Pay'; btn.disabled = false; }
   }
@@ -581,6 +590,7 @@ async function processPayment() {
 // ── Page Navigation ───────────────────────────────────────────────
 function showPage(id) {
   if (id === 'dashboard' && !getToken()) { id = 'page-login'; }
+  pushHistory(id, null);
   document.querySelectorAll('.page, .dashboard-layout').forEach(p => p.classList.remove('active'));
   const target = $id(id);
   if (target) target.classList.add('active');
@@ -617,6 +627,7 @@ function _activateDashPage(pageId, navEl) {
   if (target) target.classList.add('active');
   setText('dash-title', dashTitles[pageId] || '');
   localStorage.setItem('senet_last_dash', pageId);
+  pushHistory('dashboard', pageId);
   if (navEl) {
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     navEl.classList.add('active');
@@ -735,13 +746,16 @@ async function loginAction(e) {
 
 async function registerAction(e) {
   if (e) e.preventDefault();
-  const email = $id('register-email')?.value.trim();
-  const pass = $id('register-pass')?.value;
-  const fname = $id('register-fname')?.value.trim() || '';
-  const lname = $id('register-lname')?.value.trim() || '';
-  const name = (fname + ' ' + lname).trim() || email?.split('@')[0] || 'User';
+  const email    = $id('register-email')?.value.trim();
+  const pass     = $id('register-pass')?.value;
+  const confirm  = $id('register-confirm-pass')?.value;
+  const fname    = $id('register-fname')?.value.trim() || '';
+  const lname    = $id('register-lname')?.value.trim() || '';
+  const name     = (fname + ' ' + lname).trim() || email?.split('@')[0] || 'User';
   try {
-    if (!email || !pass) throw new Error('Email and password required');
+    if (!email || !pass)      throw new Error('Email and password required');
+    if (pass !== confirm)     throw new Error('Passwords do not match');
+    if (pass.length < 6)      throw new Error('Password must be at least 6 characters');
     await apiRegister(email, pass, name);
     localStorage.setItem('senet_email', email);
     showPage('dashboard');
@@ -789,6 +803,31 @@ function showToast(msg) {
 function openSidebar() { $id('dashSidebar')?.classList.add('open'); $id('sidebarOverlay')?.classList.add('visible'); }
 function closeSidebar() { $id('dashSidebar')?.classList.remove('open'); $id('sidebarOverlay')?.classList.remove('visible'); }
 function toggleMobileMenu() {}
+
+// ── Browser History (back/forward arrow support) ──────────────────
+function pushHistory(pageId, dashId) {
+  const state = { pageId, dashId };
+  const url   = dashId ? `#${dashId}` : `#${pageId}`;
+  history.pushState(state, '', url);
+}
+
+window.addEventListener('popstate', (event) => {
+  if (!event.state) return;
+  const { pageId, dashId } = event.state;
+  if (pageId === 'dashboard' && dashId) {
+    // Re-enter dashboard without pushing new history
+    if (!getToken()) { showPage('page-login'); return; }
+    document.querySelectorAll('.page, .dashboard-layout').forEach(p => p.classList.remove('active'));
+    $id('dashboard')?.classList.add('active');
+    applyRoleUI();
+    renderBookings();
+    _activateDashPage(dashId, null);
+  } else {
+    document.querySelectorAll('.page, .dashboard-layout').forEach(p => p.classList.remove('active'));
+    const target = $id(pageId);
+    if (target) target.classList.add('active');
+  }
+});
 
 // ── Init ──────────────────────────────────────────────────────────
 renderCars();

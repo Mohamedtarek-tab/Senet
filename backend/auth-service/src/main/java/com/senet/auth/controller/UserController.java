@@ -45,36 +45,37 @@ public class UserController {
     }
 
     @PutMapping("/me")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> updateProfile(@RequestHeader("X-User-Id") String userId, @RequestBody User requestBody) {
-        Optional<User> userOpt = userRepository.findById(UUID.fromString(userId));
-        
-        if (userOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+@PreAuthorize("isAuthenticated()")
+public ResponseEntity<?> updateProfile(
+        @RequestHeader("X-User-Id") String userId,
+        @RequestBody Map<String, String> body) {  // ← Map instead of User
+
+    Optional<User> userOpt = userRepository.findById(UUID.fromString(userId));
+    if (userOpt.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+    User user = userOpt.get();
+
+    // Validate email uniqueness if changing email
+    if (body.containsKey("email") && !body.get("email").equals(user.getEmail())) {
+        if (userRepository.findByEmail(body.get("email")).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", "Email is already in use"));
         }
-        
-        User user = userOpt.get();
-        
-        // Validate email uniqueness if changing email
-        if (requestBody.getEmail() != null && !requestBody.getEmail().equals(user.getEmail())) {
-            if (userRepository.findByEmail(requestBody.getEmail()).isPresent()) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("Email is already in use");
-            }
-            user.setEmail(requestBody.getEmail());
-        }
-        
-        if (requestBody.getName() != null) user.setName(requestBody.getName());
-        if (requestBody.getPhone() != null) user.setPhone(requestBody.getPhone());
-        if (requestBody.getNationalId() != null) user.setNationalId(requestBody.getNationalId());
-        
-        User saved = userRepository.save(user);
-        Map<String, Object> resp = new java.util.LinkedHashMap<>();
-        resp.put("name",       saved.getName());
-        resp.put("email",      saved.getEmail());
-        resp.put("phone",      saved.getPhone());
-        resp.put("nationalId", saved.getNationalId());
-        return ResponseEntity.ok(resp);
+        user.setEmail(body.get("email"));
     }
+
+    if (body.containsKey("name"))       user.setName(body.get("name"));
+    if (body.containsKey("phone"))      user.setPhone(body.get("phone"));
+    if (body.containsKey("nationalId")) user.setNationalId(body.get("nationalId"));
+
+    User saved = userRepository.save(user);
+    return ResponseEntity.ok(Map.of(
+        "name",       saved.getName()       != null ? saved.getName()       : "",
+        "email",      saved.getEmail()      != null ? saved.getEmail()      : "",
+        "phone",      saved.getPhone()      != null ? saved.getPhone()      : "",
+        "nationalId", saved.getNationalId() != null ? saved.getNationalId() : ""
+    ));
+}
 
     @PatchMapping("/me/password")
     @PreAuthorize("isAuthenticated()")
