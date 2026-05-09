@@ -23,4 +23,4 @@ eureka:
 
 car:
   service:
-    url: ${CAR_SERVICE_URL:http://localhost:8082}
+    url: http://car-service:8082

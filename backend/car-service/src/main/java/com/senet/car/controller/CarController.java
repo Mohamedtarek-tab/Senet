@@ -7,8 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
-
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/cars")
@@ -40,12 +40,21 @@ public class CarController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> updateCar(@PathVariable Long id, @Valid @RequestBody Car car) {
-        try {
-            return ResponseEntity.ok(carService.updateCar(id, car));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<?> updateCar(@PathVariable Long id,
+                                        @RequestBody Map<String, Object> body) {
+        return carService.getCarById(id).map(car -> {
+            if (body.containsKey("status"))       car.setStatus((String) body.get("status"));
+            if (body.containsKey("brand"))        car.setBrand((String) body.get("brand"));
+            if (body.containsKey("model"))        car.setModel((String) body.get("model"));
+            if (body.containsKey("pricePerDay"))  car.setPricePerDay(((Number) body.get("pricePerDay")).doubleValue());
+            if (body.containsKey("year"))         car.setYear(((Number) body.get("year")).intValue());
+            if (body.containsKey("category"))     car.setCategory((String) body.get("category"));
+            if (body.containsKey("engine"))       car.setEngine((String) body.get("engine"));
+            if (body.containsKey("transmission")) car.setTransmission((String) body.get("transmission"));
+            if (body.containsKey("imageUrl"))     car.setImageUrl((String) body.get("imageUrl"));
+            if (body.containsKey("description"))  car.setDescription((String) body.get("description"));
+            return ResponseEntity.ok(carService.updateCar(id, car));  // ← updateCar not save
+        }).orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")

@@ -1,8 +1,8 @@
 // ── State ────────────────────────────────────────────────────────
 let CARS = [];
 let BOOKINGS = [];
-let selectedBookingId = null;
-let selectedBookingAmount = 0;
+let selectedBookingId = localStorage.getItem('senet_pending_booking') || null;
+let selectedBookingAmount = parseFloat(localStorage.getItem('senet_pending_amount')) || 0;
 
 // ── Utils ─────────────────────────────────────────────────────────
 function $id(id) { return document.getElementById(id); }
@@ -172,6 +172,8 @@ function computeRevenue() {
 // ── Render Bookings ───────────────────────────────────────────────
 async function renderBookings() {
   if (!getToken()) return;
+  const bookingsTbody = $id('bookings-table-body');
+  if (bookingsTbody) bookingsTbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--white-dim);padding:32px;">Loading...</td></tr>';
   try {
     const role = getRole();
     BOOKINGS = (role === 'ADMIN' || role === 'EMPLOYEE')
@@ -428,6 +430,8 @@ async function confirmBooking() {
       amount: 'EGP ' + total.toLocaleString()
     });
     selectedBookingId = booking.id;
+    localStorage.setItem('senet_pending_booking', booking.id);
+    localStorage.setItem('senet_pending_amount', total); 
     showToast('Booking created! Complete payment ✦');
     setText('pay-booking-id', booking.id);
     setText('pay-summary-car', carName);
@@ -451,6 +455,10 @@ async function confirmBooking() {
 // ── Payment ───────────────────────────────────────────────────────
 async function renderPayments() {
   if (!getToken()) return;
+  const tbody = $id('payments-table-body');
+  if (tbody) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--white-dim);padding:32px;">Loading...</td></tr>';
+  }
   try {
     const role = getRole();
     const payments = (role === 'ADMIN')
@@ -479,6 +487,7 @@ async function renderPayments() {
 async function renderUsers() {
   const tbody = $id('users-table-body');
   if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--white-dim);padding:32px;">Loading...</td></tr>';
   try {
     const users = await apiGetAllUsers() || [];
     tbody.innerHTML = users.length
@@ -578,7 +587,11 @@ async function processPayment() {
     localStorage.setItem('senet_card_expiry', expiry);
     localStorage.setItem('senet_card_cvv',    cvv);
     showToast('Payment received — Awaiting admin confirmation ✦');
-    selectedBookingId = null; selectedBookingAmount = 0;
+    selectedBookingId = null;
+    selectedBookingAmount = 0;
+    localStorage.removeItem('senet_pending_booking');
+    localStorage.removeItem('senet_pending_amount');    
+    await renderCars(); 
     switchDash('dash-payments', $id('nav-payments'));
   } catch (err) {
     showToast('Payment failed: ' + err.message);
@@ -633,6 +646,24 @@ function _activateDashPage(pageId, navEl) {
     navEl.classList.add('active');
   }
 }
+function setupDateConstraints() {
+    const today = new Date().toISOString().split('T')[0];
+    const pickupInput = $id('booking-pickup');
+    const returnInput = $id('booking-return');
+    if (!pickupInput || !returnInput) return;
+    pickupInput.min = today;
+    returnInput.min = today;
+    pickupInput.addEventListener('change', () => {
+        if (pickupInput.value) {
+            const nextDay = new Date(pickupInput.value);
+            nextDay.setDate(nextDay.getDate() + 1);
+            returnInput.min = nextDay.toISOString().split('T')[0];
+            if (returnInput.value && returnInput.value <= pickupInput.value) {
+                returnInput.value = '';
+            }
+        }
+    });
+}
 
 function switchDash(pageId, navEl) {
   const dash = $id('dashboard');
@@ -672,7 +703,8 @@ function switchDash(pageId, navEl) {
     const savedName = localStorage.getItem('senet_name');
     const nameInput = $id('booking-client-name');
     if (nameInput && savedName && !nameInput.value) nameInput.value = savedName;
-  }
+    setupDateConstraints();
+}
 
   if (pageId === 'dash-client-cars') renderClientCars();
   if (pageId === 'dash-profile') loadProfileData();
@@ -767,8 +799,10 @@ async function registerAction(e) {
 
 function logoutAction() {
   apiLogout();
-  CARS = []; BOOKINGS = []; selectedBookingId = null;
+  CARS = []; BOOKINGS = []; selectedBookingId = null; selectedBookingAmount = 0;
   localStorage.removeItem('senet_last_dash');
+  localStorage.removeItem('senet_pending_booking');
+  localStorage.removeItem('senet_pending_amount');
   showPage('page-home');
   showToast('Logged out successfully');
 }

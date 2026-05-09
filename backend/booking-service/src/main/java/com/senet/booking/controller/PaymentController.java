@@ -19,11 +19,11 @@ public class PaymentController {
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> createPayment(
-            @RequestHeader(value = "X-User-Id", required = false) String userId,
-            @RequestBody Payment payment) {
-        if (userId == null) return ResponseEntity.status(401).build();
-        return ResponseEntity.ok(paymentService.processPayment(payment));
-    }
+        @RequestHeader(value = "X-User-Id", required = false) String userId,
+        @RequestBody Payment payment) {
+    if (userId == null) return ResponseEntity.status(401).build();
+    return ResponseEntity.ok(paymentService.processPaymentAndConfirm(payment));
+}
 
     @GetMapping("/my")
     @PreAuthorize("isAuthenticated()") 

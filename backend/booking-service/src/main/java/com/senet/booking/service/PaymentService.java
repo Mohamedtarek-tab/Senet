@@ -3,6 +3,7 @@ package com.senet.booking.service;
 import com.senet.booking.model.Payment;
 import com.senet.booking.repository.PaymentRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
@@ -23,9 +24,19 @@ public class PaymentService {
 
     @Transactional
     public Payment processPayment(Payment payment) {
-        // Simulated payment logic
         payment.setStatus("success");
-        return paymentRepository.save(payment);
+        return paymentRepository.save(payment); 
+    }
+
+    @Transactional(propagation = Propagation.NEVER)
+    public Payment processPaymentAndConfirm(Payment payment) {
+        Payment saved = processPayment(payment);
+        try {
+            bookingService.updateBookingStatus(saved.getBookingId(), "confirmed");
+        } catch (Exception e) {
+            System.err.println("Could not confirm booking " + saved.getBookingId() + ": " + e.getMessage());
+        }
+        return saved;
     }
 
     @Transactional(readOnly = true)
