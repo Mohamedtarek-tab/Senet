@@ -28,11 +28,17 @@ public class PaymentController {
     }
 
     @GetMapping("/booking/{bookingId}")
-    public ResponseEntity<Payment> getPaymentForBooking(@PathVariable String bookingId) {
-        return paymentService.getPaymentForBooking(bookingId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
+public ResponseEntity<Payment> getPaymentForBooking(
+        @PathVariable String bookingId,
+        @RequestHeader(value = "X-User-Id", required = false) String userId,
+        @RequestHeader(value = "X-User-Role", required = false) String role) {
+
+    if (userId == null) return ResponseEntity.status(401).build();
+
+    return paymentService.getPaymentForBooking(bookingId)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
+}
 
     @GetMapping
     public ResponseEntity<?> getAllPayments(

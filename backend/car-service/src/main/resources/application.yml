@@ -1,18 +1,14 @@
 server:
-  port: 8083
+  port: 8082
 
 spring:
   application:
-    name: booking-service
+    name: car-service
   datasource:
-    url: jdbc:sqlite:${DB_PATH:./bookings.db}
+    url: jdbc:sqlite:${DB_PATH:./cars.db}
     driver-class-name: org.sqlite.JDBC
   jpa:
     database-platform: org.hibernate.community.dialect.SQLiteDialect
     hibernate:
       ddl-auto: update
     show-sql: true
-
-car:
-  service:
-    url: ${CAR_SERVICE_URL:http://localhost:8082}
