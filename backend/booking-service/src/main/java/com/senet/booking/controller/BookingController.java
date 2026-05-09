@@ -1,6 +1,7 @@
 package com.senet.booking.controller;
 
 import com.senet.booking.model.Booking;
+import com.senet.booking.model.BookingRequest;
 import com.senet.booking.service.BookingService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -38,11 +39,21 @@ public class BookingController {
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Booking> createBooking(
-            @RequestHeader(value = "X-User-Id", required = false) String userId,
-            @Valid @RequestBody Booking booking) {
-        if (userId == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        return ResponseEntity.ok(bookingService.createBooking(booking, userId));
-    }
+        @RequestHeader(value = "X-User-Id", required = false) String userId,
+        @Valid @RequestBody BookingRequest req) {
+    if (userId == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+    Booking booking = new Booking();
+    booking.setCar(req.getCar());
+    booking.setCarId(req.getCarId());
+    booking.setClient(req.getClient());
+    booking.setPickup(req.getPickup());
+    booking.setRet(req.getRet());
+    booking.setAmount(req.getAmount());
+    // userId and id are set inside BookingService, not here
+
+    return ResponseEntity.ok(bookingService.createBooking(booking, userId));
+}
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
