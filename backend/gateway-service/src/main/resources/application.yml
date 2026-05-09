@@ -20,17 +20,24 @@ spring:
             allowedHeaders: "*"
       routes:
         - id: auth-service
-          uri: ${AUTH_SERVICE_URL:http://localhost:8081}
+          uri: lb://auth-service          # ← was: http://auth-service:8081
           predicates:
             - Path=/api/auth/**, /api/users/**
         - id: car-service
-          uri: ${CAR_SERVICE_URL:http://localhost:8082}
+          uri: lb://car-service           # ← was: http://car-service:8082
           predicates:
             - Path=/api/cars/**
         - id: booking-service
-          uri: ${BOOKING_SERVICE_URL:http://localhost:8083}
+          uri: lb://booking-service       # ← was: http://booking-service:8083
           predicates:
             - Path=/api/bookings/**, /api/payments/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+  instance:
+    prefer-ip-address: true
 
 jwt:
   secret: 4567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890

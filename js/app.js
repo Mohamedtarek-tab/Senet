@@ -53,12 +53,14 @@ function openCarDetail(carId) {
 }
 
 function goBackToFleet() {
-  if (getRole() === 'ADMIN') switchDash('dash-cars', $id('nav-cars'));
+  const role = getRole();
+  if (role === 'ADMIN' || role === 'EMPLOYEE') switchDash('dash-cars', $id('nav-cars'));
   else switchDash('dash-client-cars', $id('nav-client-cars'));
 }
 
 // ── Render Cars ───────────────────────────────────────────────────
 async function renderCars() {
+  const role = getRole();
   try {
     CARS = await apiGetCars() || [];
     const empty = '<p style="color:var(--white-dim);text-align:center;padding:40px;">No vehicles found.</p>';
@@ -68,7 +70,6 @@ async function renderCars() {
     if ($id('public-cars-grid'))
       $id('public-cars-grid').innerHTML = CARS.length ? CARS.map(carCard).join('') : empty;
 
-    // Admin fleet table
     if ($id('cars-table-body')) {
       $id('cars-table-body').innerHTML = CARS.length
         ? CARS.map(c => `
@@ -85,9 +86,9 @@ async function renderCars() {
               <td><span class="badge ${c.status==='available'?'badge-available':'badge-booked'}">${c.status}</span></td>
               <td>${c.year}</td>
               <td><div class="action-btns">
-                <button class="btn-icon" onclick="editCar(${c.id})" title="Edit">✏</button>
-                <button class="btn-icon" onclick="openCarDetail(${c.id})" title="View">👁</button>
-                <button class="btn-icon del" onclick="deleteCar(${c.id})" title="Delete">✕</button>
+              ${role === 'ADMIN' ? `<button class="btn-icon" onclick="editCar(${c.id})" title="Edit">✏</button>` : ''}
+              <button class="btn-icon" onclick="openCarDetail(${c.id})" title="View">👁</button>
+              ${role === 'ADMIN' ? `<button class="btn-icon del" onclick="deleteCar(${c.id})" title="Delete">✕</button>` : ''}
               </div></td>
             </tr>`).join('')
         : '<tr><td colspan="6" style="text-align:center;color:var(--white-dim);padding:32px;">No vehicles found.</td></tr>';
@@ -173,7 +174,7 @@ async function renderBookings() {
   if (!getToken()) return;
   try {
     const role = getRole();
-    BOOKINGS = role === 'ADMIN'
+    BOOKINGS = (role === 'ADMIN' || role === 'EMPLOYEE')
       ? (await apiGetAllBookings() || [])
       : (await apiGetMyBookings() || []);
 
@@ -184,7 +185,6 @@ async function renderBookings() {
 
     filterBookingsTable();
 
-    // Overview recent bookings (admin only)
     if ($id('overview-bookings-body')) {
       $id('overview-bookings-body').innerHTML = BOOKINGS.slice(0, 5).map(b => `
         <tr>
@@ -196,7 +196,6 @@ async function renderBookings() {
         </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--white-dim);">No bookings yet.</td></tr>';
     }
 
-    // Profile booking history
     if ($id('profile-bookings-body')) {
       $id('profile-bookings-body').innerHTML = BOOKINGS.length
         ? BOOKINGS.slice(0, 10).map(b => `
@@ -209,12 +208,11 @@ async function renderBookings() {
         : '<tr><td colspan="4" style="text-align:center;color:var(--white-dim);">No bookings yet.</td></tr>';
     }
 
-    // Stats
     setText('stat-total-bookings', BOOKINGS.length);
     setText('stat-pending', BOOKINGS.filter(b => b.status === 'pending').length);
     setText('stat-revenue', computeRevenue());
     setText('bookings-count', BOOKINGS.length);
-    setText('bookings-page-label', role === 'ADMIN' ? 'All Bookings' : 'My Bookings');
+    setText('bookings-page-label', (role === 'ADMIN' || role === 'EMPLOYEE') ? 'All Bookings' : 'My Bookings');
     setText('profile-bookings-count', BOOKINGS.length);
   } catch (err) {
     console.error('Failed to load bookings', err);
@@ -242,14 +240,15 @@ function filterBookingsTable() {
           <td style="color:var(--gold)">${b.amount}</td>
           <td><span class="badge ${statusCls[b.status]||'badge-pending'}">${b.status}</span></td>
           <td><div class="action-btns">
-            ${role === 'ADMIN' ? `
+            ${(role === 'ADMIN' || role === 'EMPLOYEE') ? `
               <select onchange="changeBookingStatus('${b.id}',this.value)" style="background:var(--surface);border:1px solid var(--border);color:var(--white);padding:3px 6px;border-radius:4px;font-size:11px;font-family:var(--font-ui);">
                 <option value="pending"   ${b.status==='pending'  ?'selected':''}>Pending</option>
                 <option value="confirmed" ${b.status==='confirmed'?'selected':''}>Confirmed</option>
                 <option value="completed" ${b.status==='completed'?'selected':''}>Completed</option>
                 <option value="cancelled" ${b.status==='cancelled'?'selected':''}>Cancelled</option>
-              </select>
-              <button class="btn-icon del" onclick="deleteBooking('${b.id}')" title="Delete">🗑</button>` : ''}
+              </select>` : ''}
+            ${role === 'ADMIN' ? `
+             <button class="btn-icon del" onclick="deleteBooking('${b.id}')" title="Delete">🗑</button>` : ''}
           </div></td>
         </tr>`).join('')
     : '<tr><td colspan="8" style="text-align:center;color:var(--white-dim);padding:32px;">No bookings found.</td></tr>';
@@ -274,7 +273,7 @@ async function changeBookingStatus(id, status) {
 
 async function cancelBooking(id) {
   try {
-    await apiUpdateBookingStatus(id, 'cancelled');
+    await apiFetch(`/api/bookings/${id}/cancel`, { method: 'PATCH' });
     showToast('Booking cancelled');
     await renderBookings();
   } catch (err) {
@@ -295,7 +294,7 @@ async function saveNewCar() {
   const imageUrl = $id('add-car-image').value.trim();
   const description = $id('add-car-description').value.trim();
 
-  if (!brand || !model || !pricePerDay) { alert('Please fill required fields: brand, model, price'); return; }
+  if (!brand || !model || !pricePerDay) { showToast('Please fill required fields: brand, model, price'); return; }
 
   const btn = document.querySelector('#dash-add-car .btn-gold');
   btn.textContent = 'Saving...'; btn.disabled = true;
@@ -315,7 +314,7 @@ async function saveNewCar() {
     await renderCars();
     switchDash('dash-cars', $id('nav-cars'));
   } catch (err) {
-    alert(err.message);
+    showToast('Error: ' + err.message);
   } finally {
     btn.textContent = 'Save Vehicle'; btn.disabled = false;
   }
@@ -323,18 +322,20 @@ async function saveNewCar() {
 
 // ── Profile ───────────────────────────────────────────────────────
 async function updateProfile() {
-  const name = $id('profile-name-input').value.trim();
-  const email = $id('profile-email-input').value.trim();
-  const phone = $id('profile-phone-input').value.trim();
+  const name       = $id('profile-name-input').value.trim();
+  const email      = $id('profile-email-input').value.trim();
+  const phone      = $id('profile-phone-input').value.trim();
   const nationalId = $id('profile-id-input').value.trim();
-  if (!name || !email) { alert('Name and email are required'); return; }
+
+  if (!name || !email) { showToast('Name and email are required'); return; }  // ← was showToast()
+
   try {
     const data = await apiUpdateMyProfile({ name, email, phone, nationalId });
-    showToast('Profile updated');
-    if (data.name) localStorage.setItem('senet_name', data.name);
+    showToast('Profile updated ✦');
+    if (data.name)  localStorage.setItem('senet_name', data.name);
     if (data.email) localStorage.setItem('senet_email', data.email);
     applyRoleUI();
-  } catch (err) { alert(err.message); }
+  } catch (err) { showToast(err.message); }  // ← was showToast()
 }
 
 async function loadProfileData() {
@@ -354,15 +355,18 @@ async function changePassword() {
   const curr    = $id('profile-curr-pass')?.value;
   const next    = $id('profile-new-pass')?.value;
   const confirm = $id('profile-confirm-pass')?.value;
-  if (!curr || !next || !confirm) { alert('Please fill all password fields'); return; }
-  if (next !== confirm)           { alert('New passwords do not match'); return; }
-  if (next.length < 6)            { alert('Password must be at least 6 characters'); return; }
+
+  // Replace all alerts with showToast:
+  if (!curr || !next || !confirm) { showToast('Please fill all password fields'); return; }
+  if (next !== confirm)           { showToast('New passwords do not match'); return; }
+  if (next.length < 6)            { showToast('Password must be at least 6 characters'); return; }
+
   try {
     await apiChangePassword(curr, next);
     showToast('Password updated successfully ✦');
     ['profile-curr-pass','profile-new-pass','profile-confirm-pass']
       .forEach(id => { const el = $id(id); if (el) el.value = ''; });
-  } catch (err) { alert('Failed: ' + err.message); }
+  } catch (err) { showToast('Failed: ' + err.message); }
 }
 
 // ── Booking Form ──────────────────────────────────────────────────
@@ -405,8 +409,8 @@ async function confirmBooking() {
   const clientName = $id('booking-client-name')?.value.trim();
   const pickup = $id('booking-pickup')?.value;
   const ret = $id('booking-return')?.value;
-  if (!sel || !clientName || !pickup || !ret) { alert('Please fill all required fields'); return; }
-  if (new Date(ret) <= new Date(pickup)) { alert('Return date must be after pickup date'); return; }
+  if (!sel || !clientName || !pickup || !ret) { showToast('Please fill all required fields'); return; }
+  if (new Date(ret) <= new Date(pickup)) { showToast('Return date must be after pickup date'); return; }
 
   const carId = parseInt(sel.value);
   const car = CARS.find(c => c.id === carId);
@@ -438,7 +442,7 @@ async function confirmBooking() {
     if (payBtn) payBtn.textContent = '✦ Pay EGP ' + total.toLocaleString();
     switchDash('dash-payment', null);
   } catch (err) {
-    alert(err.message);
+    showToast(err.message);
   } finally {
     if (btn) { btn.textContent = 'Confirm Booking'; btn.disabled = false; }
   }
@@ -449,7 +453,7 @@ async function renderPayments() {
   if (!getToken()) return;
   try {
     const role = getRole();
-    const payments = role === 'ADMIN'
+    const payments = (role === 'ADMIN')
       ? (await apiGetAllPayments() || [])
       : (await apiGetMyPayments() || []);
     const tbody = $id('payments-table-body');
@@ -486,8 +490,9 @@ async function renderUsers() {
             <td>
               <select onchange="updateUserRole('${u.id}',this.value)"
                 style="background:var(--surface);border:1px solid var(--border);color:var(--white);padding:3px 6px;border-radius:4px;font-size:11px;font-family:var(--font-ui);">
-                <option value="CLIENT" ${u.role==='CLIENT'?'selected':''}>Client</option>
-                <option value="ADMIN"  ${u.role==='ADMIN' ?'selected':''}>Admin</option>
+                <option value="CLIENT"   ${u.role==='CLIENT'  ?'selected':''}>Client</option>
+                <option value="EMPLOYEE" ${u.role==='EMPLOYEE'?'selected':''}>Employee</option>
+                <option value="ADMIN"    ${u.role==='ADMIN'   ?'selected':''}>Admin</option>
               </select>
             </td>
             <td><div class="action-btns">
@@ -500,13 +505,26 @@ async function renderUsers() {
 }
 
 async function updateUserRole(id, role) {
+  if (id === getUserId()) {
+    showToast('You cannot change your own role');
+    await renderUsers(); // re-render to reset the dropdown visually
+    return;
+  }
   try {
     await apiUpdateUser(id, { role });
-    showToast('Role updated');
-  } catch (err) { showToast('Error: ' + err.message); }
+    showToast('Role updated ✦');
+    await renderUsers(); // re-render so table reflects the saved state
+  } catch (err) {
+    showToast('Error: ' + err.message);
+    await renderUsers(); // re-render to reset dropdown on failure too
+  }
 }
 
 async function deleteUser(id) {
+  if (id === getUserId()) {
+    showToast('You cannot delete your own account');
+    return;
+  }
   if (!confirm('Delete this user permanently?')) return;
   try {
     await apiDeleteUser(id);
@@ -545,9 +563,9 @@ async function processPayment() {
   const cardNumber = $id('pay-card-number')?.value.replace(/\s/g, '');
   const expiry = $id('pay-expiry')?.value.trim();
   const cvv = $id('pay-cvv')?.value.trim();
-  if (!cardHolder || !cardNumber || !expiry || !cvv) { alert('Please fill all card details'); return; }
+  if (!cardHolder || !cardNumber || !expiry || !cvv) { showToast('Please fill all card details'); return; }
   if (!selectedBookingId) {
-    alert('No active booking. Please book a car first.');
+    showToast('No active booking. Please book a car first.');
     switchDash('dash-client-cars', $id('nav-client-cars'));
     return;
   }
@@ -563,7 +581,7 @@ async function processPayment() {
     selectedBookingId = null; selectedBookingAmount = 0;
     switchDash('dash-payments', $id('nav-payments'));
   } catch (err) {
-    alert('Payment failed: ' + err.message);
+    showToast('Payment failed: ' + err.message);
   } finally {
     if (btn) { btn.textContent = '✦ Pay'; btn.disabled = false; }
   }
@@ -572,6 +590,7 @@ async function processPayment() {
 // ── Page Navigation ───────────────────────────────────────────────
 function showPage(id) {
   if (id === 'dashboard' && !getToken()) { id = 'page-login'; }
+  pushHistory(id, null);
   document.querySelectorAll('.page, .dashboard-layout').forEach(p => p.classList.remove('active'));
   const target = $id(id);
   if (target) target.classList.add('active');
@@ -584,9 +603,9 @@ function showPage(id) {
     const navMap = {
       'dash-overview':     'nav-overview',
       'dash-cars':         'nav-cars',
-      'dash-bookings':     role === 'ADMIN' ? 'nav-bookings' : 'nav-my-bookings',
+      'dash-bookings':     (role === 'ADMIN' || role === 'EMPLOYEE') ? 'nav-bookings' : 'nav-my-bookings',
       'dash-client-cars':  'nav-client-cars',
-      'dash-booking-form': role === 'ADMIN' ? null : 'nav-new-booking',
+      'dash-booking-form': (role === 'ADMIN' || role === 'EMPLOYEE') ? null : 'nav-new-booking',
       'dash-add-car':      null,
       'dash-car-detail':   null,
       'dash-profile':      null,
@@ -594,7 +613,8 @@ function showPage(id) {
       'dash-payments':     'nav-payments',
       'dash-users':        'nav-users',
     };
-    const page = (saved && $id(saved)) ? saved : (role === 'ADMIN' ? 'dash-overview' : 'dash-client-cars');
+    const page = (saved && $id(saved)) ? saved :
+      (role === 'ADMIN' || role === 'EMPLOYEE') ? 'dash-overview' : 'dash-client-cars';
     _activateDashPage(page, $id(navMap[page] || ''));
     if (page === 'dash-client-cars') renderClientCars();
     if (page === 'dash-profile') loadProfileData();
@@ -607,6 +627,7 @@ function _activateDashPage(pageId, navEl) {
   if (target) target.classList.add('active');
   setText('dash-title', dashTitles[pageId] || '');
   localStorage.setItem('senet_last_dash', pageId);
+  pushHistory('dashboard', pageId);
   if (navEl) {
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     navEl.classList.add('active');
@@ -625,7 +646,6 @@ function switchDash(pageId, navEl) {
   _activateDashPage(pageId, navEl);
   closeSidebar();
 
-  // Page-specific setup
   if (pageId === 'dash-car-detail' && window.selectedCarId) {
     const c = CARS.find(car => car.id == window.selectedCarId);
     if (c) {
@@ -642,7 +662,8 @@ function switchDash(pageId, navEl) {
       setText('car-detail-desc', c.description || 'A highly refined luxury vehicle built for maximum comfort and style.');
       setText('car-detail-price', 'EGP ' + c.pricePerDay.toLocaleString());
       const adminBtns = $id('car-detail-admin-btns');
-      if (adminBtns) adminBtns.style.display = getRole() === 'ADMIN' ? 'flex' : 'none';
+      const role = getRole();
+      if (adminBtns) adminBtns.style.display = (role === 'ADMIN' || role === 'EMPLOYEE') ? 'flex' : 'none';
     }
   }
 
@@ -667,20 +688,26 @@ function switchDash(pageId, navEl) {
 }
 
 function applyRoleUI() {
-  if (typeof getRole !== 'function') return;
-  const isAdmin = getRole() === 'ADMIN';
+  const role = getRole();
+  const isAdmin = role === 'ADMIN';
+  const isEmployee = role === 'EMPLOYEE';
 
   const adminNav = $id('admin-nav-group');
   const clientNav = $id('client-nav-group');
-  if (adminNav) adminNav.style.display = isAdmin ? 'block' : 'none';
-  if (clientNav) clientNav.style.display = isAdmin ? 'none' : 'block';
+  const employeeNav = $id('employee-nav-group');
 
+  if (adminNav)    adminNav.style.display    = isAdmin                    ? 'block' : 'none';
+  if (clientNav)   clientNav.style.display   = (!isAdmin && !isEmployee)  ? 'block' : 'none';
+  if (employeeNav) employeeNav.style.display = isEmployee                 ? 'block' : 'none';
+
+  const addCarBtn = $id('add-car-btn');
+  if (addCarBtn) addCarBtn.style.display = isAdmin ? 'flex' : 'none';
   const savedName = localStorage.getItem('senet_name') || '';
   const displayName = savedName || (getUserId() ? 'User' : 'Guest');
   const letter = displayName.charAt(0).toUpperCase();
 
   setText('sidebar-name', displayName);
-  setText('sidebar-role', isAdmin ? 'Admin' : 'Client');
+  setText('sidebar-role', isAdmin ? 'Admin' : isEmployee ? 'Employee' : 'Client');
   document.querySelectorAll('.user-avatar').forEach(el => el.textContent = letter);
   setText('topbar-user-name', displayName.split(' ')[0]);
   setText('profile-name-header', displayName);
@@ -719,13 +746,16 @@ async function loginAction(e) {
 
 async function registerAction(e) {
   if (e) e.preventDefault();
-  const email = $id('register-email')?.value.trim();
-  const pass = $id('register-pass')?.value;
-  const fname = $id('register-fname')?.value.trim() || '';
-  const lname = $id('register-lname')?.value.trim() || '';
-  const name = (fname + ' ' + lname).trim() || email?.split('@')[0] || 'User';
+  const email    = $id('register-email')?.value.trim();
+  const pass     = $id('register-pass')?.value;
+  const confirm  = $id('register-confirm-pass')?.value;
+  const fname    = $id('register-fname')?.value.trim() || '';
+  const lname    = $id('register-lname')?.value.trim() || '';
+  const name     = (fname + ' ' + lname).trim() || email?.split('@')[0] || 'User';
   try {
-    if (!email || !pass) throw new Error('Email and password required');
+    if (!email || !pass)      throw new Error('Email and password required');
+    if (pass !== confirm)     throw new Error('Passwords do not match');
+    if (pass.length < 6)      throw new Error('Password must be at least 6 characters');
     await apiRegister(email, pass, name);
     localStorage.setItem('senet_email', email);
     showPage('dashboard');
@@ -773,6 +803,31 @@ function showToast(msg) {
 function openSidebar() { $id('dashSidebar')?.classList.add('open'); $id('sidebarOverlay')?.classList.add('visible'); }
 function closeSidebar() { $id('dashSidebar')?.classList.remove('open'); $id('sidebarOverlay')?.classList.remove('visible'); }
 function toggleMobileMenu() {}
+
+// ── Browser History (back/forward arrow support) ──────────────────
+function pushHistory(pageId, dashId) {
+  const state = { pageId, dashId };
+  const url   = dashId ? `#${dashId}` : `#${pageId}`;
+  history.pushState(state, '', url);
+}
+
+window.addEventListener('popstate', (event) => {
+  if (!event.state) return;
+  const { pageId, dashId } = event.state;
+  if (pageId === 'dashboard' && dashId) {
+    // Re-enter dashboard without pushing new history
+    if (!getToken()) { showPage('page-login'); return; }
+    document.querySelectorAll('.page, .dashboard-layout').forEach(p => p.classList.remove('active'));
+    $id('dashboard')?.classList.add('active');
+    applyRoleUI();
+    renderBookings();
+    _activateDashPage(dashId, null);
+  } else {
+    document.querySelectorAll('.page, .dashboard-layout').forEach(p => p.classList.remove('active'));
+    const target = $id(pageId);
+    if (target) target.classList.add('active');
+  }
+});
 
 // ── Init ──────────────────────────────────────────────────────────
 renderCars();

@@ -1,0 +1,13 @@
+# Maven
+**/target/
+
+# Node
+**/node_modules/
+**/package-lock.json
+
+# IDE
+.vscode/
+*.class
+*.jar
+
+backend/data/*.db

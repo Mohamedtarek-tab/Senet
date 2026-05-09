@@ -157,6 +157,9 @@ async function apiUpdateBookingStatus(id, status) {
         body: JSON.stringify({ status })
     });
 }
+async function apiCancelBooking(id) {
+    return apiFetch(`/api/bookings/${id}/cancel`, { method: 'PATCH' });
+}
 
 // ── Payments API ──────────────────────────────────────────────
 

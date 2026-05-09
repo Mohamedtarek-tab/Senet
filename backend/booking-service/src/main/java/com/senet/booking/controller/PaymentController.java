@@ -3,9 +3,8 @@ package com.senet.booking.controller;
 import com.senet.booking.model.Payment;
 import com.senet.booking.service.PaymentService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/payments")
@@ -18,24 +17,36 @@ public class PaymentController {
     }
 
     @PostMapping
-    public ResponseEntity<Payment> createPayment(@RequestBody Payment payment) {
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> createPayment(
+            @RequestHeader(value = "X-User-Id", required = false) String userId,
+            @RequestBody Payment payment) {
+        if (userId == null) return ResponseEntity.status(401).build();
         return ResponseEntity.ok(paymentService.processPayment(payment));
     }
 
+    @GetMapping("/my")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> getMyPayments(
+            @RequestHeader(value = "X-User-Id", required = false) String userId) {
+        if (userId == null) return ResponseEntity.status(401).build();
+        return ResponseEntity.ok(paymentService.getMyPayments(userId));
+    }
+
     @GetMapping("/booking/{bookingId}")
-    public ResponseEntity<Payment> getPaymentForBooking(@PathVariable String bookingId) {
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Payment> getPaymentForBooking(
+            @PathVariable String bookingId,
+            @RequestHeader(value = "X-User-Id", required = false) String userId) {
+        if (userId == null) return ResponseEntity.status(401).build();
         return paymentService.getPaymentForBooking(bookingId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping
-    public ResponseEntity<List<Payment>> getAllPayments() {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getAllPayments() {
         return ResponseEntity.ok(paymentService.getAllPayments());
-    }
-
-    @GetMapping("/my")
-    public ResponseEntity<List<Payment>> getMyPayments(@RequestHeader("X-User-Id") String userId) {
-        return ResponseEntity.ok(paymentService.getMyPayments(userId));
     }
 }

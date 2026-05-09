@@ -12,3 +12,11 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+    open-in-view: false   # suppresses the open-in-view warning
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+  instance:
+    prefer-ip-address: true
