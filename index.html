@@ -32,9 +32,6 @@
       <button class="btn btn-ghost btn-sm" onclick="showPage('page-login')">Login</button>
       <button class="btn btn-gold btn-sm" onclick="showPage('page-register')">Register</button>
     </div>
-    <div class="hamburger" onclick="toggleMobileMenu()">
-      <span></span><span></span><span></span>
-    </div>
   </nav>
 
   <!-- Hero -->
@@ -357,14 +354,10 @@
     <header class="dash-topbar">
       <h2 id="dash-title">Overview</h2>
       <div class="topbar-right">
-        <div class="notif-btn" title="No new notifications">🔔</div>
         <div style="display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="switchDash('dash-profile', null)">
           <div class="user-avatar" style="width:32px;height:32px;font-size:12px;">A</div>
           <span id="topbar-user-name" style="font-size:12px;color:var(--silver);">User</span>
         </div>
-        <button class="hamburger" style="display:flex;" onclick="openSidebar()">
-          <span></span><span></span><span></span>
-        </button>
       </div>
     </header>
 
@@ -428,15 +421,17 @@
         </div>
         <div style="display:flex;gap:12px;margin-bottom:28px;flex-wrap:wrap;align-items:center;">
           <input class="search-input" id="client-search" placeholder="Search make, model..." style="width:240px;" oninput="filterClientCars()">
-          <select id="client-category-filter" onchange="filterClientCars()"
-            style="background:var(--surface);border:1px solid var(--border);color:var(--white);padding:9px 14px;border-radius:var(--radius);font-family:var(--font-ui);font-size:12px;outline:none;">
-            <option value="">All Categories</option>
-            <option>Luxury Sedan</option>
-            <option>SUV</option>
-            <option>Sports Car</option>
-            <option>Electric</option>
-            <option>Convertible</option>
-          </select>
+          <select id="client-category-filter" onchange="filterClientCars()" ...>
+          <option value="">All Categories</option>
+          <option value="Luxury">Luxury</option>
+          <option value="Sedan">Sedan</option>
+          <option value="SUV">SUV</option>
+          <option value="Sports">Sports</option>
+          <option value="Electric">Electric</option>
+          <option value="Convertible">Convertible</option>
+          <option value="Truck">Truck</option>
+          <option value="Van">Van</option>
+        </select>
         </div>
         <div class="cars-grid" id="client-cars-grid">
           <p style="color:var(--white-dim);text-align:center;padding:40px;">Loading vehicles...</p>
@@ -528,12 +523,15 @@
               <div class="form-group">
                 <label>Category</label>
                 <select id="add-car-category">
-                  <option>Luxury Sedan</option>
-                  <option>SUV</option>
-                  <option>Sports Car</option>
-                  <option>Electric</option>
-                  <option>Convertible</option>
-                </select>
+                <option value="Luxury">Luxury</option>
+                <option value="Sedan">Sedan</option>
+                <option value="SUV">SUV</option>
+                <option value="Sports">Sports</option>
+                <option value="Electric">Electric</option>
+                <option value="Convertible">Convertible</option>
+                <option value="Truck">Truck</option>
+                <option value="Van">Van</option>
+              </select>
               </div>
             </div>
             <div class="form-row">
@@ -757,67 +755,100 @@
         </div>
       </div>
 
-      <!-- ── PAYMENT ── -->
+            <!-- ── PAYMENT ── -->
       <div id="dash-payment" class="dash-page">
         <div style="margin-bottom:28px;">
           <p class="label" style="margin-bottom:6px;">Secure Payment</p>
-          <h3 style="font-family:var(--font-display);font-size:1.8rem;font-weight:300;">Payment Details</h3>
+          <h3 style="font-family:var(--font-display);font-size:1.8rem;font-weight:300;">Complete Your Booking</h3>
         </div>
-        <div class="payment-layout">
-          <div>
-            <!-- Card Visual -->
-            <div class="payment-card-visual">
-              <div class="card-chip">▣</div>
-              <div class="card-number" id="payment-card-display-number">•••• •••• •••• ————</div>
-              <div class="card-meta">
-                <div class="card-meta-item">
-                  <div class="lbl">Card Holder</div>
-                  <div class="val" id="payment-card-name">YOUR NAME</div>
-                </div>
-                <div class="card-meta-item">
-                  <div class="lbl">Expires</div>
-                  <div class="val" id="payment-card-display-expiry">MM/YY</div>
-                </div>
-                <div class="card-meta-item" style="text-align:right;">
-                  <div style="font-size:1.2rem;color:var(--gold);font-weight:600;">VISA</div>
-                </div>
+
+        <div style="max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:20px;">
+
+          <!-- Order Summary — shown first so user knows what they're paying -->
+          <div class="card" style="padding:24px;">
+            <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:400;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);letter-spacing:0.08em;">ORDER SUMMARY</h3>
+            <div style="display:flex;gap:14px;align-items:center;margin-bottom:16px;">
+              <div style="width:56px;height:40px;border-radius:var(--radius);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:18px;">🚗</div>
+              <div>
+                <div id="pay-car-name" style="font-size:14px;font-weight:500;color:var(--white);">—</div>
+                <div style="font-size:11px;color:var(--white-dim);">Booking <span id="pay-booking-id" style="color:var(--gold);">—</span></div>
               </div>
             </div>
-
-            <!-- Card Form -->
-            <div class="card" style="padding:28px;">
-              <h3 style="font-family:var(--font-display);font-size:1.1rem;font-weight:400;margin-bottom:20px;">Card Information</h3>
-              <div class="form-group">
-                <label>Cardholder Name</label>
-                <input type="text" id="pay-card-holder" placeholder="As printed on card"
-                oninput="setText('payment-card-name', this.value || 'YOUR NAME')">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
+              <div style="background:var(--surface);border-radius:var(--radius);padding:10px 14px;">
+                <div style="font-size:10px;color:var(--white-dim);margin-bottom:3px;letter-spacing:0.06em;">PICKUP</div>
+                <div id="pay-summary-pickup" style="font-size:13px;color:var(--white);">—</div>
               </div>
-              <div class="form-group">
-                <label>Card Number</label>
-                <input type="text" id="pay-card-number" placeholder="1234 5678 9012 3456" maxlength="19"
-                oninput="updateCardVisual()">
+              <div style="background:var(--surface);border-radius:var(--radius);padding:10px 14px;">
+                <div style="font-size:10px;color:var(--white-dim);margin-bottom:3px;letter-spacing:0.06em;">RETURN</div>
+                <div id="pay-summary-return" style="font-size:13px;color:var(--white);">—</div>
               </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Expiry Date</label>
-                  <input type="text" id="pay-expiry" placeholder="MM / YY" maxlength="7"
-                  oninput="setText('payment-card-display-expiry', this.value || 'MM/YY')">
-                </div>
-                <div class="form-group">
-                  <label>CVV</label>
-                  <input type="text" id="pay-cvv" placeholder="•••" maxlength="4">
-                </div>
+            </div>
+            <div style="border-top:1px solid var(--border);padding-top:14px;display:flex;flex-direction:column;gap:8px;">
+              <div class="summary-row"><span class="key">Duration</span><span id="pay-summary-days">—</span></div>
+              <div class="summary-row"><span class="key">Daily Rate</span><span id="pay-summary-rate">—</span></div>
+              <div class="summary-row"><span class="key">Subtotal</span><span id="pay-summary-subtotal">—</span></div>
+              <div class="summary-row"><span class="key">Insurance</span><span id="pay-summary-insurance">EGP 300</span></div>
+              <div class="summary-row" style="margin-top:4px;padding-top:10px;border-top:1px solid var(--border);">
+                <span style="font-size:14px;color:var(--white);font-weight:500;">Total Due</span>
+                <span id="pay-summary-total" style="font-size:1.3rem;font-family:var(--font-display);color:var(--gold);">—</span>
               </div>
-              <div style="display:flex;gap:12px;">
-                <button class="btn btn-gold" id="pay-btn" style="flex:1;justify-content:center;" onclick="processPayment()">
-                  ✦ Pay
-                </button>
-              </div>
-              <p style="text-align:center;margin-top:14px;font-size:10px;color:var(--silver-dim);letter-spacing:0.1em;">
-                🔒 256-bit SSL encryption · PCI DSS compliant
-              </p>
             </div>
           </div>
+
+          <!-- Card Visual -->
+          <div class="payment-card-visual">
+            <div class="card-chip">▣</div>
+            <div class="card-number" id="payment-card-display-number">•••• •••• •••• ————</div>
+            <div class="card-meta">
+              <div class="card-meta-item">
+                <div class="lbl">Card Holder</div>
+                <div class="val" id="payment-card-name">YOUR NAME</div>
+              </div>
+              <div class="card-meta-item">
+                <div class="lbl">Expires</div>
+                <div class="val" id="payment-card-display-expiry">MM/YY</div>
+              </div>
+              <div class="card-meta-item" style="text-align:right;">
+                <div style="font-size:1.2rem;color:var(--gold);font-weight:600;">VISA</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card Form -->
+          <div class="card" style="padding:24px;">
+            <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:400;margin-bottom:18px;letter-spacing:0.08em;">CARD DETAILS</h3>
+            <div class="form-group">
+              <label>Cardholder Name</label>
+              <input type="text" id="pay-card-holder" placeholder="As printed on card"
+                oninput="setText('payment-card-name', this.value || 'YOUR NAME')">
+            </div>
+            <div class="form-group">
+              <label>Card Number</label>
+              <input type="text" id="pay-card-number" placeholder="1234 5678 9012 3456" maxlength="19"
+                oninput="updateCardVisual()">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Expiry Date</label>
+                <input type="text" id="pay-expiry" placeholder="MM / YY" maxlength="7"
+                  oninput="setText('payment-card-display-expiry', this.value || 'MM/YY')">
+              </div>
+              <div class="form-group">
+                <label>CVV</label>
+                <input type="text" id="pay-cvv" placeholder="•••" maxlength="4">
+              </div>
+            </div>
+            <button class="btn btn-gold" id="pay-btn" style="width:100%;justify-content:center;margin-top:8px;font-size:14px;" onclick="processPayment()">
+              ✦ Pay Now
+            </button>
+            <p style="text-align:center;margin-top:12px;font-size:10px;color:var(--silver-dim);letter-spacing:0.1em;">
+              🔒 256-bit SSL encryption · PCI DSS compliant
+            </p>
+          </div>
+
+        </div>
+      </div>
 
           <!-- Order Summary Sidebar -->
           <div>

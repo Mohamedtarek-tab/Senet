@@ -104,8 +104,8 @@ public class BookingService {
             headers.set("X-Internal-Call", "true");
             HttpEntity<Map<String, String>> entity = new HttpEntity<>(Map.of("status", status), headers);
             restTemplate.exchange(
-                    carServiceUrl + "/api/cars/" + carId,
-                    HttpMethod.PUT,
+                    carServiceUrl + "/api/cars/" + carId + "/status",
+                    HttpMethod.PATCH,
                     entity,
                     Void.class);
         } catch (Exception e) {

@@ -56,6 +56,14 @@ public class CarController {
             return ResponseEntity.ok(carService.updateCar(id, car));  // ← updateCar not save
         }).orElse(ResponseEntity.notFound().build());
     }
+    @PatchMapping("/{id}/status")
+public ResponseEntity<?> updateCarStatus(@PathVariable Long id,
+                                          @RequestBody Map<String, String> body) {
+    return carService.getCarById(id).map(car -> {
+        car.setStatus(body.get("status"));
+        return ResponseEntity.ok(carService.updateCar(id, car));
+    }).orElse(ResponseEntity.notFound().build());
+}
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
