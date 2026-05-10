@@ -433,6 +433,7 @@ async function confirmBooking() {
     localStorage.setItem('senet_pending_booking', booking.id);
     localStorage.setItem('senet_pending_amount', total); 
     showToast('Booking created! Complete payment ✦');
+    renderCars(); // refresh status in background — don't await, just fire
     setText('pay-booking-id', booking.id);
     setText('pay-summary-car', carName);
     setText('pay-car-name', carName);

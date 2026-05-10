@@ -103,14 +103,22 @@ public class BookingService {
             headers.set("X-User-Role", "ADMIN");
             headers.set("X-Internal-Call", "true");
             HttpEntity<Map<String, String>> entity = new HttpEntity<>(Map.of("status", status), headers);
-            restTemplate.exchange(
+            var response = restTemplate.exchange(
                     carServiceUrl + "/api/cars/" + carId + "/status",
                     HttpMethod.PATCH,
                     entity,
-                    Void.class);
+                    String.class);
+            System.out.println("[BookingService] Car " + carId + " status → " + status
+                    + " | HTTP " + response.getStatusCode());
+        } catch (org.springframework.web.client.HttpClientErrorException e) {
+            System.err.println("[BookingService] Car status update failed — HTTP "
+                    + e.getStatusCode() + " for car " + carId + ": " + e.getResponseBodyAsString());
+        } catch (org.springframework.web.client.ResourceAccessException e) {
+            System.err.println("[BookingService] Car service unreachable at " + carServiceUrl
+                    + " — is car-service running? " + e.getMessage());
         } catch (Exception e) {
-            System.err
-                    .println("Warning: could not update car " + carId + " status to " + status + ": " + e.getMessage());
+            System.err.println("[BookingService] Unexpected error updating car " + carId
+                    + " status to " + status + ": " + e.getClass().getSimpleName() + " — " + e.getMessage());
         }
     }
 }
